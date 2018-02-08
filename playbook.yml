@@ -1,0 +1,20 @@
+---
+- hosts: debian
+  remote_user: root
+  tasks:
+  - name: install the various packages we need
+    action: >
+      {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+    with_items:
+      - emacs-nox
+      - htop
+      - rsync
+      - dtrx
+      - git
+      - libnss3-tools
+      - python2.7
+      - virtualenv
+      - python-pip
+      - screen
+
+ 
