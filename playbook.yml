@@ -3,10 +3,18 @@
   remote_user: root
   tasks:
 
-  - name: make sure we have google's repo added
-    command: "add-apt-repository 'deb http://packages.cloud.google.com/apt stretch main' -y -u"
-    command: "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -"
 
+  - name: make sure we have the GPG key for google cloud repo
+    get_url: 
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: /tmp/key.gpg
+
+  - name: install key
+    command: apt-key add /tmp/key.gpg
+    
+  - name: make sure we have google cloud repo added
+    command: "add-apt-repository 'deb http://packages.cloud.google.com/apt cloud-sdk-stretch main' -y -u"
+    
   - name: install the various packages we need
     action: >
       {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
@@ -25,6 +33,7 @@
       - xauth
       - xvfb
       - software-properties-common
+      - google-cloud-sdk
 
   
   - name: checkout the wptdashboard project
@@ -36,5 +45,15 @@
     git: 
       repo: 'https://github.com/w3c/web-platform-tests.git'
       dest: /root/web-platform-tests
+
+  - name: install python requirements
+    pip:
+      requirements: /root/wptdashboard/requirements.txt
+    
+  - name: make python virtualenv
+    pip:
+      name: virtualenv
+      virtualenv: /root/web-platform-tests/_venv
+
       
   # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
