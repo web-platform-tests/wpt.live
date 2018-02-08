@@ -16,6 +16,7 @@
       - virtualenv
       - python-pip
       - screen
+      - curl
   
   - name: checkout the wptdashboard project
     git: 
@@ -27,18 +28,10 @@
       repo: 'https://github.com/w3c/web-platform-tests.git'
       dest: /root/web-platform-tests
       
-  - name: install the google cloud tools
-    command: /bin/false
-    register: result
+  - name: check for the google cloud tools
+    command: gcloud
+    register: gcloud
     ignore_errors: True
 
-    command: /bin/something
-    when: result|failed
-
-    command: /bin/something_else
-    when: result|succeeded
-
-    command: /bin/still/something_else
-    when: result|skipped   
-
-    
+  - name: install google cloud tools as we didn't find them
+    command: "curl https://sdk.cloud.google.com | bash"
