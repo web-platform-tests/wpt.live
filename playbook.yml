@@ -2,19 +2,17 @@
 - hosts: debian
   remote_user: root
   tasks:
-
-
   - name: make sure we have the GPG key for google cloud repo
-    get_url: 
+    get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         dest: /tmp/key.gpg
 
   - name: install key
     command: apt-key add /tmp/key.gpg
-    
+
   - name: make sure we have google cloud repo added
     command: "add-apt-repository 'deb http://packages.cloud.google.com/apt cloud-sdk-stretch main' -y -u"
-    
+
   - name: install the various packages we need
     action: >
       {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
@@ -35,25 +33,23 @@
       - software-properties-common
       - google-cloud-sdk
 
-  
   - name: checkout the wptdashboard project
-    git: 
+    git:
       repo: 'https://github.com/w3c/wptdashboard.git'
       dest: /root/wptdashboard
-      
+
   - name: checkout the web-platform-tests
-    git: 
+    git:
       repo: 'https://github.com/w3c/web-platform-tests.git'
       dest: /root/web-platform-tests
 
   - name: install python requirements
     pip:
       requirements: /root/wptdashboard/requirements.txt
-    
+
   - name: make python virtualenv
     pip:
       name: virtualenv
       virtualenv: /root/web-platform-tests/_venv
 
-      
   # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
