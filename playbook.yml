@@ -16,5 +16,29 @@
       - virtualenv
       - python-pip
       - screen
+  
+  - name: checkout the wptdashboard project
+    git: 
+      repo: 'https://github.com/w3c/wptdashboard.git'
+      dest: /root/wptdashboard
+      
+  - name: checkout the web-platform-tests
+    git: 
+      repo: 'https://github.com/w3c/web-platform-tests.git'
+      dest: /root/web-platform-tests
+      
+  - name: install the google cloud tools
+    command: /bin/false
+    register: result
+    ignore_errors: True
 
- 
+    command: /bin/something
+    when: result|failed
+
+    command: /bin/something_else
+    when: result|succeeded
+
+    command: /bin/still/something_else
+    when: result|skipped   
+
+    
