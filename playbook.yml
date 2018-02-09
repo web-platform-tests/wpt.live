@@ -1,5 +1,5 @@
 ---
-- hosts: debian
+- hosts: all
   remote_user: root
   tasks:
   - name: make sure we have the GPG key for google cloud repo
