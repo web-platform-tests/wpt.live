@@ -1,20 +1,27 @@
 ---
-- hosts: debian
+- hosts: all
   remote_user: root
   tasks:
-
-
   - name: make sure we have the GPG key for google cloud repo
-    get_url: 
+    get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         dest: /tmp/key.gpg
 
   - name: install key
     command: apt-key add /tmp/key.gpg
-    
+    become: true
+
   - name: make sure we have google cloud repo added
-    command: "add-apt-repository 'deb http://packages.cloud.google.com/apt cloud-sdk-stretch main' -y -u"
-    
+    lineinfile:
+        path: /etc/apt/sources.list.d/google-cloud-sdk.list
+        line: deb http://packages.cloud.google.com/apt cloud-sdk-stretch main
+        create: true
+    become: true
+
+  - name: update package repository
+    command: apt-get update
+    become: true
+
   - name: install the various packages we need
     action: >
       {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
@@ -34,26 +41,25 @@
       - xvfb
       - software-properties-common
       - google-cloud-sdk
+    become: true
 
-  
   - name: checkout the wptdashboard project
-    git: 
+    git:
       repo: 'https://github.com/w3c/wptdashboard.git'
-      dest: /root/wptdashboard
-      
+      dest: ~/wptdashboard
+
   - name: checkout the web-platform-tests
-    git: 
+    git:
       repo: 'https://github.com/w3c/web-platform-tests.git'
-      dest: /root/web-platform-tests
+      dest: ~/web-platform-tests
 
   - name: install python requirements
     pip:
-      requirements: /root/wptdashboard/requirements.txt
-    
+      requirements: ~/wptdashboard/requirements.txt
+
   - name: make python virtualenv
     pip:
       name: virtualenv
-      virtualenv: /root/web-platform-tests/_venv
+      virtualenv: ~/web-platform-tests/_venv
 
-      
   # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
