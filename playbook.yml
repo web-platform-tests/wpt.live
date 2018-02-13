@@ -61,4 +61,12 @@
       name: virtualenv
       virtualenv: ~/web-platform-tests/_venv
 
-  # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
+  - name: make sure we can open enough files
+    lineinfile: dest=/etc/systemd/system.conf
+      regexp="DefaultLimitNOFILE"
+      line="DefaultLimitNOFILE=65536"
+      state=present
+
+# https://github.com/ansible/ansible/issues/10157
+
+
