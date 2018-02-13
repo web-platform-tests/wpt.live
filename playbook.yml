@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: debian
   remote_user: root
   tasks:
   - name: make sure we have the GPG key for google cloud repo
@@ -39,7 +39,6 @@
       - curl
       - xauth
       - xvfb
-      - software-properties-common
       - google-cloud-sdk
     become: true
 
