@@ -100,11 +100,17 @@
       group: root
       mode: 0755
 
-  - name: reboot the machine
-    command: /sbin/shutdown -r +1
-    async: 0
-    poll: 0
-    ignore_errors: true
+  - name: make a cronjob to run browser-runner.sh
+    cron:
+      name: "run browsers"
+      minute: "*/1"
+      job: "/root/browser-runner.sh > /root/browser-runner.log 2>&1"
+
+  # - name: reboot the machine
+  #   command: /sbin/shutdown -r +1
+  #   async: 0
+  #   poll: 0
+  #   ignore_errors: true
 
 # https://github.com/ansible/ansible/issues/10157
 
