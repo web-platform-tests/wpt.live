@@ -1,6 +1,6 @@
 ---
 - hosts: debian
-  #remote_user: root #admin on ec2 for debian
+  #remote_user: username specified in /etc/ansible/hosts
   become: yes
   become_user: root
 
@@ -41,10 +41,6 @@
     command: apt-get update
     become: true
 
-  #- name: install the kernel headers
-  #  command: "shell apt-get install -y linux-headers-$(uname -r)"
-  #  become: true
-
   - name: install the various packages we need
     action: >
       {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
@@ -65,17 +61,30 @@
       - google-cloud-sdk
       - linux-headers-amd64
       - nvidia-driver
+      - unattended-upgrades
     become: true
+
+  - name: Disallow password authentication
+    lineinfile: dest=/etc/ssh/sshd_config
+                regexp="^PasswordAuthentication"
+                line="PasswordAuthentication no"
+                state=present
+    notify: Restart ssh
+
+  - name: remove old repos
+    command: "rm -rf /root/web-platform-tests && rm -rf /root/wptdashboard"
 
   - name: checkout the wptdashboard project
     git:
       repo: 'https://github.com/w3c/wptdashboard.git'
       dest: ~/wptdashboard
+      force: yes
 
   - name: checkout the web-platform-tests
     git:
       repo: 'https://github.com/w3c/web-platform-tests.git'
       dest: ~/web-platform-tests
+      force: yes
 
   - name: install python requirements
     pip:
@@ -100,11 +109,43 @@
       group: root
       mode: 0755
 
+  - name: set up browser-runner to run tests for a browser
+    lineinfile: dest=/root/browser-runner.sh
+      regexp="export BROWSER"
+      line="export BROWSER=firefox-57.0-linux"
+      state=present
+
+  - name: ensure we have the latest google-sdk
+    command: pip install --upgrade google-cloud
+    async: 0
+    poll: 0
+    ignore_errors: true
+
   - name: make a cronjob to run browser-runner.sh
     cron:
       name: "run browsers"
       minute: "*/1"
       job: "/root/browser-runner.sh > /root/browser-runner.log 2>&1"
+
+  - name: make a cronjob to remove browser-running.txt at boot
+    cron:
+      name: "a job for reboot"
+      special_time: reboot
+      job: "rm /root/browser-running.txt"
+
+  - name: put the running.ini file in place
+    copy:
+      src: files/root/running.ini
+      dest: /root/wptdashboard/run/running.ini
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: update the running.ini file with ACTUAL SECRETS
+    lineinfile: dest=/root/wptdashboard/run/running.ini
+                regexp="^sauce_key"
+                line="sauce_key = {{ sauce_key }}"
+                state=present
 
   - name: reboot the machine
     command: /sbin/shutdown -r +1
@@ -112,6 +153,16 @@
     poll: 0
     ignore_errors: true
 
-# https://github.com/ansible/ansible/issues/10157
+  handlers:
+    - name: Restart ssh
+      service: name=ssh state=restarted
+
+
+# outstanding things:
+# add the run/running.ini -- problematic because we don't want to expose our
+#                            API keys to the public. suggest we just do this
+#			     manually for now.
+#
+# 
 
 
