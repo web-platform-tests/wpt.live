@@ -89,6 +89,14 @@
       line="DefaultLimitNOFILE=65536"
       state=present
 
+  - name: copy various files in /files/root/ to /root/
+    copy:
+      src: files/root/browser-runner.sh
+      dest: /root/browser-runner.sh
+      owner: root
+      group: root
+      mode: 0755
+
   - name: reboot the machine
     command: /sbin/shutdown -r +1
     async: 0
