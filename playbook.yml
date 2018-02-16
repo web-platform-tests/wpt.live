@@ -106,11 +106,11 @@
       minute: "*/1"
       job: "/root/browser-runner.sh > /root/browser-runner.log 2>&1"
 
-  # - name: reboot the machine
-  #   command: /sbin/shutdown -r +1
-  #   async: 0
-  #   poll: 0
-  #   ignore_errors: true
+  - name: reboot the machine
+    command: /sbin/shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
 
 # https://github.com/ansible/ansible/issues/10157
 
