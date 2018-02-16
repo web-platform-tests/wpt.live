@@ -1,7 +1,16 @@
 ---
 - hosts: debian
-  remote_user: root
+  remote_user: root #admin on ec2 for debian
   tasks:
+  - name: Set authorized key, removing all the authorized key already set
+    authorized_key:
+     user: root
+     key: '{{ item }}'
+     state: present
+     exclusive: True
+    with_file:
+     - public_keys/web-platform
+
   - name: make sure we have the GPG key for google cloud repo
     get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -18,9 +27,20 @@
         create: true
     become: true
 
+  - name: install nvidia drivers (for GPU machines)
+    lineinfile:
+        path: /etc/apt/sources.list.d/nvidia-drivers.list
+        line: deb http://httpredir.debian.org/debian/ stretch main contrib non-free
+        create: true
+    become: true
+
   - name: update package repository
     command: apt-get update
     become: true
+
+  #- name: install the kernel headers
+  #  command: "shell apt-get install -y linux-headers-$(uname -r)"
+  #  become: true
 
   - name: install the various packages we need
     action: >
@@ -40,6 +60,8 @@
       - xauth
       - xvfb
       - google-cloud-sdk
+      - linux-headers-amd64
+      - nvidia-driver
     become: true
 
   - name: checkout the wptdashboard project
@@ -66,6 +88,12 @@
       regexp="DefaultLimitNOFILE"
       line="DefaultLimitNOFILE=65536"
       state=present
+
+  - name: reboot the machine
+    command: /sbin/shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
 
 # https://github.com/ansible/ansible/issues/10157
 
