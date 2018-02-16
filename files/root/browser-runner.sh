@@ -7,6 +7,9 @@ if [ -f "/root/browser-is-running.txt" ]; then
     echo "Not running, browser tests are running"
 else
 
+    rm -rf /tmp/.com.google.Chro*
+    rm -rf /tmp/.org.chromium.Chrom*
+
     touch /root/browser-is-running.txt
 
     #    rm -rf ~/wptdbuild/*
