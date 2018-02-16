@@ -1,6 +1,9 @@
 ---
 - hosts: debian
-  remote_user: root #admin on ec2 for debian
+  #remote_user: root #admin on ec2 for debian
+  become: yes
+  become_user: root
+
   tasks:
   - name: Set authorized key, removing all the authorized key already set
     authorized_key:
