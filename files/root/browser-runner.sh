@@ -7,9 +7,12 @@ if [ -f "/root/browser-is-running.txt" ]; then
     echo "Not running, browser tests are running"
 else
 
-    rm -rf /tmp/.com.google.Chro*
-    rm -rf /tmp/.org.chromium.Chrom*
+    # removes temporary files from browsers
 
+    rm -rf /tmp/*mozrunner
+    find /tmp -type f -name "*hromium*" -print0 | xargs -0 -r rm -f
+    find /tmp -type f -name "*hrome*" -print0 | xargs -0 -r rm -f
+    
     touch /root/browser-is-running.txt
 
     #    rm -rf ~/wptdbuild/*
