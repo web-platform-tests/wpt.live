@@ -112,7 +112,7 @@
   - name: set up browser-runner to run tests for a browser
     lineinfile: dest=/root/browser-runner.sh
       regexp="export BROWSER"
-      line="export BROWSER=firefox-57.0-linux"
+      line="export BROWSER={{ browser }}"
       state=present
 
   - name: ensure we have the latest google-sdk
