@@ -1,41 +1,18 @@
 ---
-- hosts: debian
+- hosts: all
   #remote_user: username specified in /etc/ansible/hosts
   become: yes
   become_user: root
 
   tasks:
-  - name: Set authorized key, removing all the authorized key already set
-    authorized_key:
-     user: root
-     key: '{{ item }}'
-     state: present
-     exclusive: True
-    with_file:
-     - public_keys/web-platform
-
-  - name: make sure we have the GPG key for google cloud repo
-    get_url:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        dest: /tmp/key.gpg
-
-  - name: install key
-    command: apt-key add /tmp/key.gpg
-    become: true
-
-  - name: make sure we have google cloud repo added
-    lineinfile:
-        path: /etc/apt/sources.list.d/google-cloud-sdk.list
-        line: deb http://packages.cloud.google.com/apt cloud-sdk-stretch main
-        create: true
-    become: true
-
-  - name: install nvidia drivers (for GPU machines)
-    lineinfile:
-        path: /etc/apt/sources.list.d/nvidia-drivers.list
-        line: deb http://httpredir.debian.org/debian/ stretch main contrib non-free
-        create: true
-    become: true
+  # - name: Set authorized key, removing all the authorized key already set
+  #   authorized_key:
+  #    user: root
+  #    key: '{{ item }}'
+  #    state: present
+  #    exclusive: True
+  #   with_file:
+  #    - public_keys/web-platform
 
   - name: update package repository
     command: apt-get update
@@ -45,22 +22,10 @@
     action: >
       {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
     with_items:
-      - emacs-nox
-      - htop
-      - rsync
-      - dtrx
       - git
-      - libnss3-tools
       - python2.7
       - virtualenv
       - python-pip
-      - screen
-      - curl
-      - xauth
-      - xvfb
-      - google-cloud-sdk
-      - linux-headers-amd64
-      - nvidia-driver
       - unattended-upgrades
     become: true
 
@@ -71,24 +36,14 @@
                 state=present
     notify: Restart ssh
 
-  - name: remove old repos
-    command: "rm -rf /root/web-platform-tests && rm -rf /root/wptdashboard"
-
-  - name: checkout the wptdashboard project
-    git:
-      repo: 'https://github.com/w3c/wptdashboard.git'
-      dest: ~/wptdashboard
-      force: yes
+  - name: remove old repo
+    command: "rm -rf /root/web-platform-tests"
 
   - name: checkout the web-platform-tests
     git:
       repo: 'https://github.com/w3c/web-platform-tests.git'
       dest: ~/web-platform-tests
       force: yes
-
-  - name: install python requirements
-    pip:
-      requirements: ~/wptdashboard/requirements.txt
 
   - name: make python virtualenv
     pip:
@@ -101,57 +56,25 @@
       line="DefaultLimitNOFILE=65536"
       state=present
 
-  - name: copy various files in /files/root/ to /root/
-    copy:
-      src: files/root/browser-runner.sh
-      dest: /root/browser-runner.sh
-      owner: root
-      group: root
-      mode: 0755
+  - name: Update the hosts file
+    shell: /root/web-platform-tests/wpt make-hosts-file | sudo tee -a /etc/hosts
+    become: true
 
-  - name: set up browser-runner to run tests for a browser
-    lineinfile: dest=/root/browser-runner.sh
-      regexp="export BROWSER"
-      line="export BROWSER={{ browser }}"
-      state=present
+  - name: ensure wpt service is configured
+    template:
+      src: wpt.service
+      dest: /etc/systemd/system/
 
-  - name: set up browser-runner to have good defaults
-    lineinfile: dest=/root/browser-runner.sh
-      regexp="export FLAGS"
-      line="export FLAGS=--upload --create-testrun --total-chunks 100"
-      state=present
+  - name: ensure config.json is in the correct location
+    template:
+      src: config.json
+      dest: /root/web-platform-tests/
 
-  - name: ensure we have the latest google-sdk
-    command: pip install --upgrade google-cloud
-    async: 0
-    poll: 0
-    ignore_errors: true
-
-  - name: make a cronjob to run browser-runner.sh
-    cron:
-      name: "run browsers"
-      minute: "*/1"
-      job: "/root/browser-runner.sh > /root/browser-runner.log 2>&1"
-
-  - name: make a cronjob to remove browser-running.txt at boot
-    cron:
-      name: "a job for reboot"
-      special_time: reboot
-      job: "rm /root/browser-running.txt"
-
-  - name: put the running.ini file in place
-    copy:
-      src: files/root/running.ini
-      dest: /root/wptdashboard/run/running.ini
-      owner: root
-      group: root
-      mode: 0755
-
-  - name: update the running.ini file with ACTUAL SECRETS
-    lineinfile: dest=/root/wptdashboard/run/running.ini
-                regexp="^sauce_key"
-                line="sauce_key = {{ sauce_key }}"
-                state=present
+  - name: Enable the wpt service in systemd
+    systemd:
+      enabled: True
+      name: wpt
+      state: started
 
   - name: reboot the machine
     command: /sbin/shutdown -r +1

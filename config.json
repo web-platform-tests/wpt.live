@@ -1,0 +1,7 @@
+{
+  "ports": {
+    "http": [80, "auto"],
+    "https":[443]
+  },
+  "bind_address": false
+}

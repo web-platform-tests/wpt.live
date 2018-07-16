@@ -1,0 +1,13 @@
+[Unit]
+Description=Web Platform Test Service
+After=network.target auditd.service
+
+[Service]
+WorkingDirectory=/root/web-platform-tests/
+ExecStart=/root/web-platform-tests/wpt serve
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
