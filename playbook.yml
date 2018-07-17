@@ -62,12 +62,12 @@
 
   - name: ensure wpt service is configured
     template:
-      src: wpt.service
+      src: files/wpt.service
       dest: /etc/systemd/system/
 
   - name: ensure config.json is in the correct location
     template:
-      src: config.json
+      src: files/config.json
       dest: /root/web-platform-tests/
 
   - name: Enable the wpt service in systemd
