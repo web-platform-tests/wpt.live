@@ -3,5 +3,10 @@
     "http": [80, "auto"],
     "https":[443]
   },
-  "bind_address": false
+  "bind_address": false,
+  "browser_host": "web-platform-tests.live",
+  "alternate_hosts": {
+    "alt": "not-web-platform-tests.live"
+  },
+  "check_subdomains": true
 }

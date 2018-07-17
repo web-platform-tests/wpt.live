@@ -57,7 +57,7 @@
       state=present
 
   - name: Update the hosts file
-    shell: /root/web-platform-tests/wpt make-hosts-file | sudo tee -a /etc/hosts
+    shell: /root/web-platform-tests/wpt make-hosts-file | sed 's/web-platform.test/web-platform-tests.live/g' | sudo tee -a /etc/hosts
     become: true
 
   - name: ensure wpt service is configured
