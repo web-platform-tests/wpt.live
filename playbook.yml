@@ -56,11 +56,6 @@
       line="DefaultLimitNOFILE=65536"
       state=present
 
-  # Should no longer be needed after https://github.com/web-platform-tests/wpt/pull/11905 lands in wpt
-  - name: Update the hosts file
-    shell: /root/web-platform-tests/wpt make-hosts-file | sed 's/web-platform.test/{{ domain_name | default("web-platform-tests.live") }}/g' | sudo tee -a /etc/hosts
-    become: true
-
   - name: ensure wpt service is configured
     template:
       src: files/wpt.service
@@ -70,6 +65,10 @@
     template:
       src: files/config.json
       dest: /root/web-platform-tests/
+
+  - name: Update the hosts file
+    shell: /root/web-platform-tests/wpt make-hosts-file | sudo tee -a /etc/hosts
+    become: true
 
   - name: Enable the wpt service in systemd
     systemd:
