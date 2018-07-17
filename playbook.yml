@@ -5,28 +5,21 @@
   become_user: root
 
   tasks:
-  # - name: Set authorized key, removing all the authorized key already set
-  #   authorized_key:
-  #    user: root
-  #    key: '{{ item }}'
-  #    state: present
-  #    exclusive: True
-  #   with_file:
-  #    - public_keys/web-platform
-
   - name: update package repository
-    command: apt-get update
+    apt:
+      update_cache: yes
     become: true
 
   - name: install the various packages we need
-    action: >
-      {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
-    with_items:
-      - git
-      - python2.7
-      - virtualenv
-      - python-pip
-      - unattended-upgrades
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - git
+        - python2.7
+        - virtualenv
+        - python-pip
+        - unattended-upgrades
     become: true
 
   - name: Disallow password authentication
@@ -37,7 +30,9 @@
     notify: Restart ssh
 
   - name: remove old repo
-    command: "rm -rf /root/web-platform-tests"
+    file:
+      path: /root/web-platform-tests
+      state: absent
 
   - name: checkout the web-platform-tests
     git:
@@ -75,6 +70,16 @@
       enabled: True
       name: wpt
       state: started
+
+  - include: certbot.yml
+    when: inventory_hostname != 'vagrant'
+
+  - name: Add cron job to sync wpt
+    cron:
+      name: Certbot automatic renewal.
+      job: "cd /root/web-platform-tests/ && git pull origin master && systemctl restart wpt"
+      minute: 0
+      hour: 23
 
   - name: reboot the machine
     command: /sbin/shutdown -r +1

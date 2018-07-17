@@ -1,0 +1,33 @@
+# Use certbot to generate letsencrypt ssl certs. This will also set up a cron
+# job that will ensure the certs are kept up-to-date.
+
+- name: install certbot
+  apt:
+    name: certbot
+    state: present
+
+- name: ensure certbot well-known path exists
+  file:
+    path: "/root/web-platform-tests/.well-known"
+    state: directory
+
+- name: test if certbot has been initialized
+  stat:
+    path: /etc/letsencrypt/live/{{fqdn | default("web-platform-tests.live") }}/fullchain.pem
+  register: cert_file
+
+- name: intialize certbot
+  command: >
+    certbot certonly --webroot --agree-tos --non-interactive
+    {{ (env == 'production') | ternary('', '--test-cert') }}
+    --email {{letsencrypt_email}}
+    -w /root/web-platform-tests
+    -d {{site_fqdn | default("web-platform-tests.live") }}
+  when: cert_file.stat.exists == false
+
+- name: Add cron job for cert renewal
+  cron:
+    name: Certbot automatic renewal.
+    job: "/usr/bin/certbot renew --quiet --no-self-upgrade && systemctl restart wpt"
+    minute: 0
+    hour: 23
