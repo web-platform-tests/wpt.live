@@ -1,2 +1,5 @@
 [appservers]
-web-platform-tests.live
+18.211.123.192 ansible_user=ubuntu
+
+[appservers:vars]
+ansible_python_interpreter=/usr/bin/python3

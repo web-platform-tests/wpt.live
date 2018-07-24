@@ -1,0 +1,3 @@
+env: dev
+fqdn: web-platform-test.live
+letsencrypt_email: infrastructure@bocoup.com
