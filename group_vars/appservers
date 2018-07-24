@@ -1,3 +1,3 @@
-env: dev
-fqdn: web-platform-test.live
+env: production
+fqdn: web-platform-tests.live
 letsencrypt_email: infrastructure@bocoup.com

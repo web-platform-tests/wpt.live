@@ -11,8 +11,8 @@
   "check_subdomains": true,
   "ssl": {
     "pregenerated": {
-      "host_key_path": "/etc/letsencrypt/live/web-platform-test.live/privkey.pem",
-      "host_cert_path": "/etc/letsencrypt/live/web-platform-test.live/fullchain.pem"
+      "host_key_path": "/etc/letsencrypt/live/web-platform-tests.live/privkey.pem",
+      "host_cert_path": "/etc/letsencrypt/live/web-platform-tests.live/fullchain.pem"
     }
   }
 }

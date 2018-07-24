@@ -22,7 +22,7 @@
     {{ (env == 'production') | ternary('', '--test-cert') }}
     --email {{letsencrypt_email}}
     -w /root/web-platform-tests
-    -d {{site_fqdn | default("web-platform-tests.live") }}
+    -d {{fqdn | default("web-platform-tests.live") }}
   when: cert_file.stat.exists == false
 
 - name: Add cron job for cert renewal
