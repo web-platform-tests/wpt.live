@@ -1,6 +1,5 @@
 ---
 - hosts: all
-  #remote_user: username specified in /etc/ansible/hosts
   become: yes
   become_user: root
   gather_facts: False
@@ -91,13 +90,3 @@
   handlers:
     - name: Restart ssh
       service: name=ssh state=restarted
-
-
-# outstanding things:
-# add the run/running.ini -- problematic because we don't want to expose our
-#                            API keys to the public. suggest we just do this
-#			     manually for now.
-#
-# 
-
-
