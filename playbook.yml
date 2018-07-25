@@ -76,7 +76,7 @@
 
   - name: Add cron job to sync wpt
     cron:
-      name: Certbot automatic renewal.
+      name: Synchronize WPT
       job: "cd /root/web-platform-tests/ && git pull origin master && systemctl restart wpt"
       minute: 0
       hour: 23
