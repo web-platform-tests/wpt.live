@@ -13,7 +13,7 @@
 
 - name: test if certbot has been initialized
   stat:
-    path: /etc/letsencrypt/live/{{fqdn | default("web-platform-tests.live") }}/fullchain.pem
+    path: /etc/letsencrypt/live/{{fqdn}}/fullchain.pem
   register: cert_file
 
 - name: intialize certbot
@@ -22,7 +22,7 @@
     {{ (env == 'production') | ternary('', '--test-cert') }}
     --email {{letsencrypt_email}}
     -w /root/web-platform-tests
-    -d {{fqdn | default("web-platform-tests.live") }}
+    -d {{fqdn}}
     -d not-web-platform-tests.live
     -d xn--lve-6lad.web-platform-tests.live
     -d xn--lve-6lad.not-web-platform-tests.live
