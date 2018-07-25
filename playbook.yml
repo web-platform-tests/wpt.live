@@ -21,7 +21,6 @@
   - name: update package repository
     apt:
       update_cache: yes
-    become: true
 
   - name: install the various packages we need
     apt:
@@ -33,7 +32,6 @@
         - virtualenv
         - python-pip
         - unattended-upgrades
-    become: true
 
   - name: Disallow password authentication
     lineinfile: dest=/etc/ssh/sshd_config
@@ -70,7 +68,6 @@
 
   - name: Update the hosts file
     shell: /root/web-platform-tests/wpt make-hosts-file | sudo tee -a /etc/hosts
-    become: true
 
   - name: Enable the wpt service in systemd
     systemd:
