@@ -66,8 +66,15 @@
       src: files/config.json
       dest: /root/web-platform-tests/
 
+  - name: Collect list of host aliases
+    shell: /root/web-platform-tests/wpt make-hosts-file
+    register: hosts_file_contents
+
   - name: Update the hosts file
-    shell: /root/web-platform-tests/wpt make-hosts-file | sudo tee -a /etc/hosts
+    lineinfile:
+      line: '{{item}}'
+      dest: /etc/hosts
+    with_items: '{{hosts_file_contents.stdout_lines}}'
 
   - name: Enable the wpt service in systemd
     systemd:
