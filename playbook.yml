@@ -4,19 +4,6 @@
   become_user: root
   gather_facts: False
 
-  pre_tasks:
-  - name: Install Python for Ansible
-    run_once: inventory_hostname == 'vagrant'
-    raw: |-
-      test -e /usr/bin/python || \
-        (apt -y update && sudo apt install -y python-minimal)
-    changed_when: False
-
-  - name: Install pip
-    run_once: inventory_hostname == 'vagrant'
-    apt:
-      name: python-pip
-
   tasks:
   - name: update package repository
     apt:
