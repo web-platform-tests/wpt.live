@@ -5,7 +5,7 @@ After=network.target auditd.service
 [Service]
 WorkingDirectory=/root/web-platform-tests/
 ExecStart=/root/web-platform-tests/wpt serve
-KillMode=process
+KillMode=control-group
 Restart=on-failure
 
 [Install]
