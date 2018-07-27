@@ -20,6 +20,19 @@
         - python-pip
         - unattended-upgrades
 
+  - name:    Add Docker GPG key
+    apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+
+  - name:    Add Docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+
+  - name:    Install Docker
+    apt:
+      name: docker-ce
+      state: present
+      update_cache: yes
+
   - name: Disallow password authentication
     lineinfile: dest=/etc/ssh/sshd_config
                 regexp="^PasswordAuthentication"
@@ -27,48 +40,15 @@
                 state=present
     notify: Restart ssh
 
-  - name: checkout the web-platform-tests
-    git:
-      repo: 'https://github.com/web-platform-tests/wpt.git'
-      dest: ~/web-platform-tests
-      force: yes
-
-  - name: make python virtualenv
-    pip:
-      name: virtualenv
-      virtualenv: ~/web-platform-tests/_venv
-
-  - name: ensure wpt service is configured
+  - name: ensure wpt docker service is configured
     template:
-      src: files/wpt.service
+      src: files/docker.wpt.service
       dest: /etc/systemd/system/
-
-  - name: ensure conditional restart script is in the correct location
-    template:
-      src: files/wpt-pull-and-restart.sh
-      dest: /root/
-      owner: root
-      mode: '0700'
-
-  - name: ensure config.json is in the correct location
-    template:
-      src: files/config.json
-      dest: /root/web-platform-tests/
-
-  - name: Collect list of host aliases
-    shell: /root/web-platform-tests/wpt make-hosts-file
-    register: hosts_file_contents
-
-  - name: Update the hosts file
-    lineinfile:
-      line: '{{item}}'
-      dest: /etc/hosts
-    with_items: '{{hosts_file_contents.stdout_lines}}'
 
   - name: Enable the wpt service in systemd
     systemd:
       enabled: True
-      name: wpt
+      name: docker.wpt
       state: started
 
   - include: certbot.yml
@@ -76,20 +56,10 @@
 
   - name: Add cron job to sync wpt
     cron:
-      name: Synchronize WPT
-      job: "/root/wpt-pull-and-restart.sh"
+      name: Redeploy a new docker service every minute
+      job: "docker pull bmac/wpt && docker service update --image bmac/wpt:latest wpt-service"
       minute: "*"
-
   
-  # force_restart is false by default this can be set via the command line using --extra-vars
-  # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
-  - name: reboot the machine
-    command: /sbin/shutdown -r +1
-    async: 0
-    poll: 0
-    ignore_errors: true
-    when: force_restart
-
   handlers:
     - name: Restart ssh
       service: name=ssh state=restarted

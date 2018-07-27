@@ -1,0 +1,16 @@
+[Unit]
+Description=WPT Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker swarm leave --force
+ExecStartPre=-/usr/bin/docker swarm init --advertise-addr 172.30.1.5
+ExecStartPre=/usr/bin/docker pull bmac/wpt
+ExecStartPre=/usr/bin/docker service create -p 80:80 --host=xn--lve-6lad.not-web-platform.test:127.0.0.1 --host=xn--lve-6lad.web-platform.test:127.0.0.1 --host=xn--n8j6ds53lwwkrqhv28a.not-web-platform.test:127.0.0.1 --host=www1.web-platform.test:127.0.0.1 --host=www2.web-platform.test:127.0.0.1 --host=not-web-platform.test:127.0.0.1 --host=web-platform.test:127.0.0.1 --host=www2.not-web-platform.test:127.0.0.1 --host=www1.not-web-platform.test:127.0.0.1 --host=www.not-web-platform.test:127.0.0.1 --host=www.web-platform.test:127.0.0.1 --host=xn--n8j6ds53lwwkrqhv28a.web-platform.test:127.0.0.1 --name wpt-service bmac/wpt
+ExecStart=/usr/bin/docker service logs wpt-service --follow
+
+[Install]
+WantedBy=multi-user.target
