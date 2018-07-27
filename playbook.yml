@@ -65,7 +65,7 @@
       state: started
 
   - include: certbot.yml
-    when: inventory_hostname != 'vagrant'
+    when: not vagrant_provision
 
   - name: Add cron job to sync wpt
     cron:
