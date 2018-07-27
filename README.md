@@ -45,7 +45,7 @@ infrastructure+web-platform@bocoup.com. Then you can use the following
 command to deploy this project to production.
 
 ```
-$ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem  --verbose
+$ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem
 ```
 
 $ ansible-playbook playbook.yml -i inventory/production
