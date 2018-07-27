@@ -76,11 +76,11 @@ $ systemctl status wpt
 $ sudo journalctl -f -u wpt
 ```
 
-You can use the following command to re-run the playbook.yml provisioning
-script on the development Vagrant machine.
+You can use the following command to re-apply the configuration to the
+development system:
 
 ```
-$ ansible-playbook playbook.yml -i inventory/development
+$ vagrant provision
 ```
 
 To completely white out the Vagrant machine and build a new one from scratch,
