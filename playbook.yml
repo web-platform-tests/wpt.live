@@ -75,6 +75,12 @@
   - name: Add cron job to sync wpt
     cron:
       name: Synchronize WPT
+      job: "cd /root/web-platform-tests/ && git pull origin master"
+      minute: '*'
+
+  - name: Add cron job to restart wpt once a day to get any changes to wptserve
+    cron:
+      name: Synchronize and restart WPT
       job: "cd /root/web-platform-tests/ && git pull origin master && systemctl restart wpt"
       minute: 0
       hour: 23
