@@ -32,17 +32,14 @@ development vagrant box.
 
 ### Production
 
-The terrafrom file that describes the infrastructure for this project
-can be found in the
-[infrastructure-web-platform](https://github.com/bocoup/infrastructure-web-platform/tree/master/terraform/projects/web-platform-tests-live)
-repo. This includes setup information for the ubuntu ec2 box,
-security_group, route53 DNS configuration for the
-web-platform-tests.live domain and subdomains, and cloudwatch
-monitoring configuration.
+This project is deployed to http://web-platform-tests.live. The necessary
+infrastructure (e.g. server, DNS configuration, status monitoring) is provided
+by [Bocoup](https://bocoup.com). It is managed in an external project,
+[infrastructure-web-platform](https://github.com/bocoup/infrastructure-web-platform/tree/master/terraform/projects/web-platform-tests-live).
 
-First get request a copy of the `web_platform_test_live.pem` from
-infrastructure+web-platform@bocoup.com. Then you can use the following
-command to deploy this project to production.
+To access the production system, first request a copy of the
+`web_platform_test_live.pem` file from infrastructure+web-platform@bocoup.com.
+Using that, the following command will deploy this project to production:
 
 ```
 $ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem
