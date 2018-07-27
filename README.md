@@ -16,9 +16,9 @@ favorite web browser.
 ### Overview
 
 `playbook.yml` is the main ansible playbook for this project. It
-installs the required, packages clones
+installs the required packages, clones
 https://github.com/web-platform-tests/wpt into the
-`/root/web-platform-tests` directory and setups a system.d service
+`/root/web-platform-tests` directory and creates a system.d service
 named `wpt` to run the wptserver.
 
 A cron job is also setup to periodically pull the latest files from
@@ -26,8 +26,8 @@ web-platform-tests.
 
 Additionally, the playbook uses `certbot.yml` to setup a letsencrypt
 SSL cert for all of the supported domains. Currently this list is
-hardcoded in [certbot.yml] and will need to be manually updated if any
-additionaly domains are needed. `certbot.yml` does not run on the
+hard-coded in [certbot.yml] and will need to be manually updated if any
+additionally domains are needed. `certbot.yml` does not run on the
 development vagrant box.
 
 ### Production
@@ -52,20 +52,19 @@ $ ansible-playbook playbook.yml -i inventory/production
 
 ### Monitoring
 
-The live version of this project at http://web-platform-tests.live/ is
-monitored by a cloudwatch alert. If the index page `/` returns a non
-2XX or 3XX status for more then 1 minute then an email will be sent to
-infrastructure+web-platform@bocoup.com noting the website has entered
-the Alert status.
+Monitoring is provided by AWS Cloudwatch. If the index page `/` returns a non
+2XX or 3XX status for more then 1 minute, an e-mail will be sent to
+infrastructure+web-platform@bocoup.com noting the website has entered the Alert
+status.
 
 ### Development
 
-This project uses vagrant for local development. Running `vagrant up`
-should create a ubuntu virtual machine and run the `playbook.yml`
-provisioning script. If you need to debug the running server you can
-log into it using `vagrant ssh`.
+This project uses Vagrant for local development. Running `vagrant up` should
+create a Ubuntu virtual machine and run the `playbook.yml` provisioning script.
+If you need to debug the running server, you can log into it using `vagrant
+ssh`.
 
-Once on the development server the following commands can be used to
+Once connected to the development server, the following commands can be used to
 alter the status of the `wpt` service.
 
 ```
@@ -82,15 +81,15 @@ $ systemctl status wpt
 $ sudo journalctl -f -u wpt
 ```
 
-You can use the following command to re-run the playbook.yml
-provisioning script on the development vagrant machine.
+You can use the following command to re-run the playbook.yml provisioning
+script on the development Vagrant machine.
 
 ```
 $ ansible-playbook playbook.yml -i inventory/development
 ```
 
-To completely white out the vagrant machine and build a new one from
-scratch you can use the following command.
+To completely white out the Vagrant machine and build a new one from scratch,
+you can use the following command.
 
 ```
 $ vagrant destroy -f && vangrant ssh
