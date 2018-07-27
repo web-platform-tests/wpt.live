@@ -43,6 +43,13 @@
       src: files/wpt.service
       dest: /etc/systemd/system/
 
+  - name: ensure conditional restart script is in the correct location
+    template:
+      src: files/wpt-pull-and-restart.sh
+      dest: /root/
+      owner: root
+      mode: '0700'
+
   - name: ensure config.json is in the correct location
     template:
       src: files/config.json
@@ -70,9 +77,8 @@
   - name: Add cron job to sync wpt
     cron:
       name: Synchronize WPT
-      job: "cd /root/web-platform-tests/ && git pull origin master && systemctl restart wpt"
-      minute: 0
-      hour: 23
+      job: "/root/wpt-pull-and-restart.sh"
+      minute: "*"
 
   
   # force_restart is false by default this can be set via the command line using --extra-vars
