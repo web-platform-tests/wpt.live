@@ -24,11 +24,11 @@ named `wpt` to run the wptserver.
 A cron job is also setup to periodically pull the latest files from
 web-platform-tests.
 
-Additionally, the playbook uses `certbot.yml` to setup a letsencrypt
-SSL cert for all of the supported domains. Currently this list is
+Additionally, the playbook uses `certbot.yml` to set up a [Let's Encrypt](https://letsencrypt.org/)
+SSL certificate for all of the supported domains. Currently this list is
 hard-coded in [certbot.yml] and will need to be manually updated if any
 additionally domains are needed. `certbot.yml` does not run on the
-development vagrant box.
+development virtual machine.
 
 ### Production
 
