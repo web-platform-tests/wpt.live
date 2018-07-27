@@ -13,7 +13,6 @@ favorite web browser.
 2. Run `vagrant up` from the root of this repository
 3. Visit http://172.30.1.5/ in a web browser
 
-
 ### Overview
 
 `playbook.yml` is the main ansible playbook for this project. It
@@ -31,7 +30,6 @@ hardcoded in [certbot.yml] and will need to be manually updated if any
 additionaly domains are needed. `certbot.yml` does not run on the
 development vagrant box.
 
-
 ### Production
 
 The terrafrom file that describes the infrastructure for this project
@@ -46,13 +44,11 @@ First get request a copy of the `web_platform_test_live.pem` from
 infrastructure+web-platform@bocoup.com. Then you can use the following
 command to deploy this project to production.
 
-
 ```
 $ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem  --verbose
 ```
 
 $ ansible-playbook playbook.yml -i inventory/production
-
 
 ### Monitoring
 
@@ -61,7 +57,6 @@ monitored by a cloudwatch alert. If the index page `/` returns a non
 2XX or 3XX status for more then 1 minute then an email will be sent to
 infrastructure+web-platform@bocoup.com noting the website has entered
 the Alert status.
-
 
 ### Development
 
@@ -92,7 +87,6 @@ provisioning script on the development vagrant machine.
 
 ```
 $ ansible-playbook playbook.yml -i inventory/development
-
 ```
 
 To completely white out the vagrant machine and build a new one from
@@ -101,6 +95,3 @@ scratch you can use the following command.
 ```
 $ vagrant destroy -f && vangrant ssh
 ```
-
-
-
