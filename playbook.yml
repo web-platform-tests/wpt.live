@@ -29,7 +29,7 @@
 
   - name: checkout the web-platform-tests
     git:
-      repo: 'https://github.com/w3c/web-platform-tests.git'
+      repo: 'https://github.com/web-platform-tests/wpt.git'
       dest: ~/web-platform-tests
       force: yes
 
