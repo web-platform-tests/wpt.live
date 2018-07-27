@@ -27,11 +27,6 @@
                 state=present
     notify: Restart ssh
 
-  - name: remove old repo
-    file:
-      path: /root/web-platform-tests
-      state: absent
-
   - name: checkout the web-platform-tests
     git:
       repo: 'https://github.com/w3c/web-platform-tests.git'
