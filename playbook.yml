@@ -79,11 +79,15 @@
       minute: 0
       hour: 23
 
+  
+  # force_restart is false by default this can be set via the command line using --extra-vars
+  # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
   - name: reboot the machine
     command: /sbin/shutdown -r +1
     async: 0
     poll: 0
     ignore_errors: true
+    when: force_restart
 
   handlers:
     - name: Restart ssh
