@@ -87,5 +87,5 @@ To completely white out the Vagrant machine and build a new one from scratch,
 you can use the following command.
 
 ```
-$ vagrant destroy -f && vangrant ssh
+$ vagrant destroy -f && vangrant up
 ```
