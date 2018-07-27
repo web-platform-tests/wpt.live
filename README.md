@@ -48,8 +48,6 @@ command to deploy this project to production.
 $ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem
 ```
 
-$ ansible-playbook playbook.yml -i inventory/production
-
 ### Monitoring
 
 Monitoring is provided by AWS Cloudwatch. If the index page `/` returns a non
