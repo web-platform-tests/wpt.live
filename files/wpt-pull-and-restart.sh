@@ -17,6 +17,7 @@ GIT_NEW_HEAD=$(parse_git_hash)
 if [ "$GIT_HEAD" != "$GIT_NEW_HEAD" ]
 then
     echo "web-platform-tests HEAD is now ${GIT_NEW_HEAD} restarting wpt service"
+    ./wpt make-hosts-file | extend-hosts.py /etc/hosts
     systemctl restart wpt
 fi
 
