@@ -55,12 +55,6 @@
       src: files/config.json
       dest: /root/web-platform-tests/
 
-  - name: Install script for managing hosts file contents
-    copy:
-      src: files/extend-hosts.py
-      dest: /usr/local/bin
-      mode: 0755
-
   - name: Enable the wpt service in systemd
     systemd:
       enabled: True
