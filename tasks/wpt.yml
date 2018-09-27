@@ -1,0 +1,71 @@
+---
+  - name: update package repository
+    apt:
+      update_cache: yes
+
+  - name: install the various packages we need
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - git
+        - python2.7
+        - virtualenv
+        - python-pip
+        - unattended-upgrades
+
+  - name: Disallow password authentication
+    lineinfile: dest=/etc/ssh/sshd_config
+                regexp="^PasswordAuthentication"
+                line="PasswordAuthentication no"
+                state=present
+    notify: Restart ssh
+
+  - name: checkout the web-platform-tests
+    git:
+      repo: 'https://github.com/web-platform-tests/wpt.git'
+      dest: ~/web-platform-tests
+      force: yes
+
+  - name: make python virtualenv
+    pip:
+      name: virtualenv
+      virtualenv: ~/web-platform-tests/_venv
+
+  - name: ensure wpt service is configured
+    template:
+      src: files/wpt.service
+      dest: /etc/systemd/system/
+
+  - name: ensure conditional restart script is in the correct location
+    template:
+      src: files/wpt-pull-and-restart.sh
+      dest: /root/
+      owner: root
+      mode: '0700'
+
+  - name: ensure config.json is in the correct location
+    template:
+      src: files/config.json
+      dest: /root/web-platform-tests/
+
+  - name: Enable the wpt service in systemd
+    systemd:
+      enabled: True
+      name: wpt
+      state: started
+
+  - name: Add cron job to sync wpt
+    cron:
+      name: Synchronize WPT
+      job: "/root/wpt-pull-and-restart.sh"
+      minute: "*"
+  
+  # force_restart is false by default this can be set via the command line using --extra-vars
+  # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
+  - name: reboot the machine
+    command: /sbin/shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
+    when: force_restart

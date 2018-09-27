@@ -1,0 +1,14 @@
+[Unit]
+Description=HTTP Redirect Server
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/redirector
+ExecStart=/usr/bin/authbind /opt/node/bin/node /home/redirector/redirect-server.js
+Restart=always
+User=redirector
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,70 @@
+---
+- name: Install authbind
+  apt:
+    name: authbind
+
+# https://superuser.com/questions/710253/allow-non-root-process-to-bind-to-port-80-and-443#892391
+- name: Allow non-root process to bind to web ports
+  file:
+    path: '{{item}}'
+    state: touch
+    mode: '0777'
+  with_items:
+    - /etc/authbind/byport/80
+    - /etc/authbind/byport/443
+
+- name: Download Node.js
+  get_url:
+    url: https://nodejs.org/dist/v8.12.0/node-v8.12.0-linux-x64.tar.xz
+    checksum: sha256:29a20479cd1e3a03396a4e74a1784ccdd1cf2f96928b56f6ffa4c8dae40c88f2
+    dest: /root/node-v8.12.0-linux-x64.tar.xz
+  register: nodejs
+
+- name: Create installation directory
+  file:
+    dest: /opt/node
+    state: directory
+
+- name: Install Node.js
+  unarchive:
+    src: '{{nodejs.dest}}'
+    dest: /opt/node
+    extra_opts: 
+      - --strip-components
+      - '1'
+    remote_src: True
+
+- name: Create application user
+  user:
+    name: redirector
+    state: present
+    system: true
+    shell: /bin/bash
+
+- name: Install server
+  copy:
+    src: files/redirector/server.js
+    dest: /home/redirector
+    owner: redirector
+  notify:
+    - Restart server
+
+- name: Configure logging
+  copy:
+    src: files/redirector/redirector-journal.conf
+    dest: /etc/systemd/journald.conf.d
+  notify:
+    - Reload journald daemon
+
+- name: Define a system service
+  copy:
+    src: files/redirector/redirector.service
+    dest: /etc/systemd/system/redirector.service
+  notify:
+    - Reload systemd daemon
+
+- name: Enable and start system service
+  systemd:
+    name: redirector
+    enabled: true
+    state: started
