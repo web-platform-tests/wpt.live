@@ -51,9 +51,9 @@
       mode: '0700'
 
   - name: ensure config.json is in the correct location
-    template:
-      src: files/config.json
-      dest: /root/web-platform-tests/
+    copy:
+      src: files/config-{{ vagrant_provision | ternary("development", "production") }}.json
+      dest: /root/web-platform-tests/config.json
 
   - name: Enable the wpt service in systemd
     systemd:
