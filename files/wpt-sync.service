@@ -1,0 +1,11 @@
+[Unit]
+Description=Web Platform Test Synchronization Service
+After=network.target auditd.service wpt.service
+
+[Service]
+WorkingDirectory=/root/web-platform-tests/
+ExecStart=/root/sync-wpt.sh
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

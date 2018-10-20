@@ -38,14 +38,18 @@
       name: virtualenv
       virtualenv: ~/web-platform-tests/_venv
 
-  - name: ensure wpt service is configured
-    template:
-      src: files/wpt.service
+  - name: Install WPT services
+    copy:
+      src: '{{item}}'
       dest: /etc/systemd/system/
+    with_items:
+      - files/wpt.service
+      - files/wpt-sync.service
+      - files/wpt-sync.timer
 
-  - name: ensure conditional restart script is in the correct location
-    template:
-      src: files/wpt-pull-and-restart.sh
+  - name: Install WPT synchronization script
+    copy:
+      src: files/sync-wpt.sh
       dest: /root/
       owner: root
       mode: '0700'
@@ -55,22 +59,18 @@
       src: files/config-{{ vagrant_provision | ternary("development", "production") }}.json
       dest: /root/web-platform-tests/config.json
 
-  - name: Enable the wpt service in systemd
+  - name: Enable WPT services in systemd
     systemd:
       enabled: True
-      name: wpt
+      name: '{{item}}'
       state: started
+    with_items:
+      - wpt
+      - wpt-sync
 
   - include: certbot.yml
     when: not vagrant_provision
 
-  - name: Add cron job to sync wpt
-    cron:
-      name: Synchronize WPT
-      job: "/root/wpt-pull-and-restart.sh"
-      minute: "*"
-
-  
   # force_restart is false by default this can be set via the command line using --extra-vars
   # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
   - name: reboot the machine
