@@ -66,7 +66,7 @@
       state: started
     with_items:
       - wpt
-      - wpt-sync
+      - wpt-sync.timer
 
   - include: certbot.yml
     when: not vagrant_provision
