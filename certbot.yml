@@ -18,22 +18,25 @@
 
 - name: intialize certbot
   command: >
-    certbot certonly --webroot --agree-tos --non-interactive
-    {{ (env == 'production') | ternary('', '--test-cert') }}
-    --email {{letsencrypt_email}}
-    -w /root/web-platform-tests
-    -d {{fqdn}}
-    -d not-web-platform-tests.live
-    -d xn--lve-6lad.web-platform-tests.live
-    -d xn--lve-6lad.not-web-platform-tests.live
-    -d xn--n8j6ds53lwwkrqhv28a.web-platform-tests.live
-    -d xn--n8j6ds53lwwkrqhv28a.not-web-platform-tests.live
-    -d www1.web-platform-tests.live
-    -d www1.not-web-platform-tests.live
-    -d www2.web-platform-tests.live
-    -d www2.not-web-platform-tests.live
-    -d www.web-platform-tests.live
-    -d www.not-web-platform-tests.live
+    certbot certonly
+      --webroot
+      --agree-tos
+      --non-interactive
+      {{ (env == 'production') | ternary('', '--test-cert') }}
+      --email {{letsencrypt_email}}
+      -w /root/web-platform-tests
+      -d {{fqdn}}
+      -d not-web-platform-tests.live
+      -d xn--lve-6lad.web-platform-tests.live
+      -d xn--lve-6lad.not-web-platform-tests.live
+      -d xn--n8j6ds53lwwkrqhv28a.web-platform-tests.live
+      -d xn--n8j6ds53lwwkrqhv28a.not-web-platform-tests.live
+      -d www1.web-platform-tests.live
+      -d www1.not-web-platform-tests.live
+      -d www2.web-platform-tests.live
+      -d www2.not-web-platform-tests.live
+      -d www.web-platform-tests.live
+      -d www.not-web-platform-tests.live
 
   when: cert_file.stat.exists == false
 
