@@ -46,13 +46,18 @@
       - files/wpt.service
       - files/wpt-sync.service
       - files/wpt-sync.timer
+      - files/wpt-monitor.service
+      - files/wpt-monitor.timer
 
-  - name: Install WPT synchronization script
+  - name: Install scripts for recurrent tasks
     copy:
-      src: files/sync-wpt.sh
+      src: '{{item}}'
       dest: /root/
       owner: root
       mode: '0700'
+    with_items:
+      - files/sync-wpt.sh
+      - files/monitor-wpt.sh
 
   - name: ensure config.json is in the correct location
     copy:
@@ -67,6 +72,7 @@
     with_items:
       - wpt
       - wpt-sync.timer
+      - wpt-monitor.timer
 
   - include: certbot.yml
     when: not vagrant_provision
