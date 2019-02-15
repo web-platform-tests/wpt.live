@@ -15,20 +15,9 @@ favorite web browser.
 
 ### Overview
 
-`playbook.yml` is the main ansible playbook for this project. It
-installs the required packages, clones
-https://github.com/web-platform-tests/wpt into the
-`/root/web-platform-tests` directory and creates a system.d service
-named `wpt` to run the wptserver.
-
-A cron job is also setup to periodically pull the latest files from
-web-platform-tests.
-
-Additionally, the playbook uses `certbot.yml` to set up a [Let's Encrypt](https://letsencrypt.org/)
-SSL certificate for all of the supported domains. Currently this list is
-hard-coded in [certbot.yml] and will need to be manually updated if any
-additionally domains are needed. `certbot.yml` does not run on the
-development virtual machine.
+This project uses Ansible to manage and apply instructions for configuration a
+computer to run the web-platform-tests server. More detail on this process is
+available in the `provisioning/` directory.
 
 ### Production
 
@@ -39,10 +28,11 @@ by [Bocoup](https://bocoup.com). It is managed in an external project,
 
 To access the production system, first request a copy of the
 `web_platform_test_live.pem` file from infrastructure+web-platform@bocoup.com.
-Using that, the following command will deploy this project to production:
+Using that, the following command will deploy this project the production
+server:
 
 ```
-$ ansible-playbook playbook.yml -i inventory/production --key-file=path/to/web_platform_test_live.pem
+$ ansible-playbook provisioning/provision.yml -i provisioning/inventory/production --key-file=path/to/web_platform_test_live.pem
 ```
 
 ### Monitoring

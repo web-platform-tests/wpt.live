@@ -74,7 +74,7 @@
       - wpt-sync.timer
       - wpt-monitor.timer
 
-  - include: certbot.yml
+  - include: tasks/certbot.yml
     when: not vagrant_provision
 
   # force_restart is false by default this can be set via the command line using --extra-vars
