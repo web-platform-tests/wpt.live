@@ -15,6 +15,7 @@
     vars:
       packages:
         - git
+        - authbind
         - python2.7
         - virtualenv
         - python-pip
@@ -26,6 +27,15 @@
                 line="PasswordAuthentication no"
                 state=present
     notify: Restart ssh
+
+  - name: Allow non-root process to bind to web ports
+    file:
+      path: '{{item}}'
+      state: touch
+      mode: '0777'
+    with_items:
+      - /etc/authbind/byport/80
+      - /etc/authbind/byport/443
 
   - name: check out the web-platform-tests
     git:

@@ -4,7 +4,8 @@ After=network.target auditd.service
 
 [Service]
 WorkingDirectory=/var/www/web-platform-tests/
-ExecStart=/var/www/web-platform-tests/wpt serve
+User=www-data
+ExecStart=/usr/bin/authbind --deep /var/www/web-platform-tests/wpt serve
 KillMode=control-group
 Restart=on-failure
 

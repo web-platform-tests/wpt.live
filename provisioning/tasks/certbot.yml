@@ -90,6 +90,17 @@
 
   when: cert_file.stat.exists == false
 
+# CertBot runs as the root user. Enable the setgid flag to ensure that the
+# www-data user can read the files it inserts into the directories reserved for
+# TLS certificates.
+- name: Allow application user to read certificate
+  file:
+    path: /etc/letsencrypt
+    state: directory
+    group: www-data
+    mode: 2750
+    recurse: true
+
 - name: Add cron job for cert renewal
   cron:
     name: Certbot automatic renewal.
