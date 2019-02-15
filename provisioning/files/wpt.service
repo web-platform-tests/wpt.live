@@ -3,8 +3,8 @@ Description=Web Platform Test Service
 After=network.target auditd.service
 
 [Service]
-WorkingDirectory=/root/web-platform-tests/
-ExecStart=/root/web-platform-tests/wpt serve
+WorkingDirectory=/var/www/web-platform-tests/
+ExecStart=/var/www/web-platform-tests/wpt serve
 KillMode=control-group
 Restart=on-failure
 

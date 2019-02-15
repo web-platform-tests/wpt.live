@@ -30,13 +30,13 @@
   - name: check out the web-platform-tests
     git:
       repo: 'https://github.com/web-platform-tests/wpt.git'
-      dest: ~/web-platform-tests
+      dest: /var/www/web-platform-tests
       force: yes
 
   - name: make python virtualenv
     pip:
       name: virtualenv
-      virtualenv: ~/web-platform-tests/_venv
+      virtualenv: /var/www/web-platform-tests/_venv
 
   - name: Install WPT services
     copy:
@@ -52,7 +52,7 @@
   - name: Install scripts for recurrent tasks
     copy:
       src: '{{item}}'
-      dest: /root/
+      dest: /usr/local/bin
       owner: root
       mode: '0700'
     with_items:
@@ -62,7 +62,7 @@
   - name: ensure config.json is in the correct location
     copy:
       src: files/config-{{ vagrant_provision | ternary("development", "production") }}.json
-      dest: /root/web-platform-tests/config.json
+      dest: /var/www/web-platform-tests/config.json
 
   - name: Enable WPT services in systemd
     systemd:

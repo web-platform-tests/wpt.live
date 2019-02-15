@@ -3,10 +3,10 @@ Description=Web Platform Test Monitoring Service
 After=network.target auditd.service wpt.service
 
 [Service]
-WorkingDirectory=/root/web-platform-tests/
+WorkingDirectory=/var/www/web-platform-tests/
 Type=oneshot
-ExecStart=/root/monitor-wpt.sh http
-ExecStart=/root/monitor-wpt.sh https
+ExecStart=/usr/local/bin/monitor-wpt.sh http
+ExecStart=/usr/local/bin/monitor-wpt.sh https
 KillMode=control-group
 
 [Install]

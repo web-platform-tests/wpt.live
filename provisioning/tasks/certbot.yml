@@ -8,7 +8,7 @@
 
 - name: ensure certbot well-known path exists
   file:
-    path: "/root/web-platform-tests/.well-known"
+    path: "/var/www/web-platform-tests/.well-known"
     state: directory
 
 - name: test if certbot has been initialized
@@ -24,7 +24,7 @@
       --non-interactive
       {{ (env == 'production') | ternary('', '--test-cert') }}
       --email {{letsencrypt_email}}
-      -w /root/web-platform-tests
+      -w /var/www/web-platform-tests
       -d web-platform-tests.live
       -d not-web-platform-tests.live
       -d www.not-web-platform-tests.live
