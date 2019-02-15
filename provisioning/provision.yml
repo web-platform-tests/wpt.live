@@ -27,7 +27,7 @@
                 state=present
     notify: Restart ssh
 
-  - name: checkout the web-platform-tests
+  - name: check out the web-platform-tests
     git:
       repo: 'https://github.com/web-platform-tests/wpt.git'
       dest: ~/web-platform-tests
