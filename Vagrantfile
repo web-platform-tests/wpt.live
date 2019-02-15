@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network "private_network", ip: "172.30.1.5"
 
   config.vm.provision 'ansible' do |ansible|
-    ansible.playbook = 'provisioning/playbook.yml'
+    ansible.playbook = 'provisioning/provision.yml'
     ansible.extra_vars = {
       vagrant_provision: true
     }
