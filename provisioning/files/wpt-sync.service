@@ -3,7 +3,7 @@ Description=Web Platform Test Synchronization Service
 After=network.target auditd.service wpt.service
 
 [Service]
-WorkingDirectory=/var/www/web-platform-tests/
+WorkingDirectory=/var/www/wpt/
 Type=oneshot
 ExecStart=/usr/local/bin/sync-wpt.sh
 KillMode=control-group

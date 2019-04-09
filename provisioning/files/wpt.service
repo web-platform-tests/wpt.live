@@ -3,9 +3,9 @@ Description=Web Platform Test Service
 After=network.target auditd.service
 
 [Service]
-WorkingDirectory=/var/www/web-platform-tests/
+WorkingDirectory=/var/www/wpt/
 User=www-data
-ExecStart=/usr/bin/authbind --deep /var/www/web-platform-tests/wpt serve
+ExecStart=/var/www/wpt/wpt serve
 KillMode=control-group
 Restart=on-failure
 
