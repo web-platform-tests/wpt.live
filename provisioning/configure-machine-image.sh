@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir /var/www-data
-chown www-data:www-data /var/www-data
+startup_script=/usr/local/bin/start-web-platform-tests-live.sh
+app_root=/var/www-data
 
 # The gcloud CLI which is included on the target machine image is out-of-date
 # and does not properly integrate with Docker. Install the latest version.
@@ -25,15 +25,30 @@ apt-get --yes install google-cloud-sdk docker.io
 # Configure Docker to fetch images from gcloud's image repository
 gcloud auth configure-docker
 
+cat > $startup_script << HERE
+#!/bin/bash
+
+git pull origin master
+
+docker run \
+  --publish 80:80 \
+  --publish 8000:8000 \
+  --publish 443:443 \
+  --volume $app_root:/root/wpt \
+  gcr.io/wptdashboard/web-platform-tests-live
+HERE
+
+chmod +x $startup_script
+
 cat > /etc/systemd/system/web-platform-tests.service << HERE
 [Unit]
 Description=Web Platform Test Service
 After=network.target auditd.service
 
 [Service]
-WorkingDirectory=/var/www-data
 User=root
-ExecStart=date > /now.txt
+WorkingDirectory=$app_root
+ExecStart=$startup_script
 KillMode=control-group
 Restart=on-failure
 
@@ -42,3 +57,8 @@ WantedBy=multi-user.target
 HERE
 
 systemctl enable web-platform-tests.service
+
+mkdir -p $app_root
+cd $app_root
+git init
+git remote add origin https://github.com/web-platform-tests/wpt.git
