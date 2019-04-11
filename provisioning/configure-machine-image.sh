@@ -3,6 +3,9 @@
 startup_script=/usr/local/bin/start-web-platform-tests-live.sh
 app_root=/var/www-data
 
+curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
+bash install-logging-agent.sh
+
 # The gcloud CLI which is included on the target machine image is out-of-date
 # and does not properly integrate with Docker. Install the latest version.
 # Source: https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu
@@ -51,6 +54,8 @@ WorkingDirectory=$app_root
 ExecStart=$startup_script
 KillMode=control-group
 Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
