@@ -30,5 +30,6 @@ RUN git remote add origin https://github.com/web-platform-tests/wpt.git
 
 COPY src/wpt-config.json /root/wpt-config.json
 
-CMD git pull origin master --depth 1 --no-tags && \
+CMD (sleep 100 && ps aux | grep wp[t] | awk '{print $2}' | xargs kill -9) & \
+  git pull origin master --depth 1 --no-tags && \
   python ./wpt serve --config ../wpt-config.json
