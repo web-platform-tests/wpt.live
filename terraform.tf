@@ -12,8 +12,15 @@ variable "network_name" {
 }
 
 provider "google" {
+  project = "wptdashboard"
   region = "${var.region}"
-  credentials = "${file("google-cloud-platform.json")}"
+  credentials = "${file("google-cloud-platform-credentials.json")}"
+}
+
+provider "google-beta" {
+  project = "wptdashboard"
+  region = "${var.region}"
+  credentials = "${file("google-cloud-platform-credentials.json")}"
 }
 
 resource "google_compute_network" "default" {
@@ -46,7 +53,11 @@ data "template_file" "group2-startup-script" {
 }
 
 module "mig1" {
-  source            = "GoogleCloudPlatform/managed-instance-group/google"
+  # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
+  source            = "github.com/dcaba/terraform-google-managed-instance-group"
+  providers {
+    google-beta = "google-beta"
+  }
   version           = "1.1.13"
   region            = "${var.region}"
   zone              = "${var.zone}"
@@ -55,7 +66,7 @@ module "mig1" {
   service_port      = 80
   service_port_name = "http"
   http_health_check = false
-  target_pools      = ["${module.gce-lb-fr.target_pool}"]
+  target_pools      = ["${module.wpt-servers.target_pool}"]
   target_tags       = ["allow-service1"]
   startup_script    = "${data.template_file.group1-startup-script.rendered}"
   network           = "${google_compute_subnetwork.default.name}"
@@ -63,16 +74,19 @@ module "mig1" {
 }
 
 module "mig2" {
-  source            = "GoogleCloudPlatform/managed-instance-group/google"
-  version           = "1.1.13"
+  # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
+  source            = "github.com/dcaba/terraform-google-managed-instance-group"
+  providers {
+    google-beta = "google-beta"
+  }
   region            = "${var.region}"
   zone              = "${var.zone}"
-  name              = "${var.network_name}-group1"
+  name              = "${var.network_name}-group2"
   size              = 1
   service_port      = 8001
   service_port_name = "http"
   http_health_check = false
-  target_pools      = ["${module.gce-lb-fr.target_pool}"]
+  target_pools      = ["${module.tls-certificate-renewer.target_pool}"]
   target_tags       = ["allow-service1"]
   startup_script    = "${data.template_file.group1-startup-script.rendered}"
   network           = "${google_compute_subnetwork.default.name}"
