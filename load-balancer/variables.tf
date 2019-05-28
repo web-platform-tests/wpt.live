@@ -51,3 +51,7 @@ variable session_affinity {
   description = "How to distribute load. Options are `NONE`, `CLIENT_IP` and `CLIENT_IP_PROTO`"
   default     = "NONE"
 }
+
+variable ip_address {
+  description = "Global IP address"
+}

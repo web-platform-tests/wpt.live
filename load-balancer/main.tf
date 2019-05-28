@@ -20,6 +20,7 @@ resource "google_compute_forwarding_rule" "default" {
   target                = "${google_compute_target_pool.default.self_link}"
   load_balancing_scheme = "EXTERNAL"
   port_range            = "${var.service_port}"
+  ip_address            = "${var.ip_address}"
 }
 
 resource "google_compute_target_pool" "default" {
