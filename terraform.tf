@@ -88,7 +88,7 @@ module "mig2" {
   http_health_check = false
   target_pools      = ["${module.tls-certificate-renewer.target_pool}"]
   target_tags       = ["allow-service1"]
-  startup_script    = "${data.template_file.group1-startup-script.rendered}"
+  startup_script    = "${data.template_file.group2-startup-script.rendered}"
   network           = "${google_compute_subnetwork.default.name}"
   subnetwork        = "${google_compute_subnetwork.default.name}"
 }
