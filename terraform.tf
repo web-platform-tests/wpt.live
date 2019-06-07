@@ -8,7 +8,7 @@ variable "zone" {
 }
 
 variable "network_name" {
-  default = "tf-lb-basic"
+  default = "web-platform-tests-live-network"
 }
 
 provider "google" {
