@@ -100,7 +100,7 @@ resource "google_compute_address" "web-platform-tests-live-address" {
 module "wpt-servers" {
   source       = "./load-balancer"
   region       = "${var.region}"
-  name         = "${var.network_name}"
+  name         = "${var.network_name}-wpt"
   service_port = "${module.mig1.service_port}"
   target_tags  = ["${module.mig1.target_tags}"]
   network      = "${google_compute_subnetwork.default.name}"
@@ -111,7 +111,7 @@ module "wpt-servers" {
 module "tls-certificate-renewer" {
   source       = "./load-balancer"
   region       = "${var.region}"
-  name         = "${var.network_name}"
+  name         = "${var.network_name}-tls"
   service_port = "${module.mig2.service_port}"
   target_tags  = ["${module.mig2.target_tags}"]
   network      = "${google_compute_subnetwork.default.name}"
