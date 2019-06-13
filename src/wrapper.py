@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import logging
-import Queue
+import queue
 import subprocess
 import threading
 
@@ -10,13 +10,13 @@ class Restartable(object):
     '''A subprocess that is intended to run indefinitely unless explicitly
     restarted.'''
     def __init__(self, *args, **kwargs):
-        self._message_bus = Queue.Queue()
+        self._message_bus = queue.Queue()
         self._restart_lock = threading.Lock()
         self._args = args
         self._kwargs = kwargs
 
     def _watch(self):
-        self.proc.communicate()
+        self._proc.communicate()
         self._signal()
 
     def _signal(self):
@@ -25,25 +25,30 @@ class Restartable(object):
         self._message_bus.put(lock)
         lock.acquire()
 
+    def kill(self):
+        self._proc.kill()
+
     def run_forever(self):
         '''Execute the subprocess using the arguments provided to the
         constructor. If the subprocess exits without a request for restarting,
         raise an exception.'''
 
         while True:
-            self.proc = subprocess.Popen(*self._args, **self._kwargs)
+            self._proc = subprocess.Popen(*self._args, **self._kwargs)
             thread = threading.Thread(target=self._watch)
             thread.start()
 
             result = self._message_bus.get()
 
             try:
-                if self.proc.poll() is not None:
+                if self._proc.poll() is not None:
                     raise Exception('Restartable exited unexpectedly')
 
-                self.proc.terminate()
+                #self._proc.terminate()
+                import signal
+                self._proc.send_signal(signal.SIGINT)
 
-                # Wait for child process to end
+                # Wait for child process to end and allow its thread to end
                 self._message_bus.get().release()
             finally:
                 # Signal completion to calling thread
@@ -66,24 +71,33 @@ class Sentinel(object):
         the `on_success` callback and repeat. If the command fails, raise an
         exception.'''
         while True:
-            proc = subprocess.Popen(self._cmd, shell=True)
-            proc.communicate()
-            if proc.returncode != 0:
+            self._proc = subprocess.Popen(self._cmd);
+            self._proc.communicate()
+            if self._proc.returncode != 0:
                 raise Exception(
                     'Sentinel exited with non-zero exit code ({})'.format(self._cmd)
                 )
+            del self._proc
 
             self._on_success(self)
 
-def main(leader_cmd, sentinel_cmds):
+    def kill(self):
+        self._proc.kill()
+
+def setup_logging():
     logger = logging.getLogger()
     handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
-    child = Restartable(leader_cmd)
-    errors = Queue.Queue()
+    return logger
+
+def main(leader_cmd, sentinel_cmds):
+    logger = setup_logging()
+    restartable = Restartable(leader_cmd)
+    children = [restartable]
+    errors = queue.Queue()
 
     def target(subject, errors):
         try:
@@ -93,19 +107,27 @@ def main(leader_cmd, sentinel_cmds):
 
     def on_success(sentinel):
         logger.debug('Restarting following signal from sentinel ({})'.format(sentinel._cmd))
-        child.restart()
+        restartable.restart()
 
     for sentinel_cmd in sentinel_cmds:
-        sentinel = Sentinel(sentinel_cmd, on_success)
+        sentinel = Sentinel(sentinel_cmd.split(), on_success)
+        children.append(sentinel)
         thread = threading.Thread(target=target, args=(sentinel, errors))
         thread.daemon = True
         thread.start()
 
-    thread = threading.Thread(target=target, args=(child, errors))
+    thread = threading.Thread(target=target, args=(restartable, errors))
     thread.daemon = True
     thread.start()
 
-    raise errors.get()
+    try:
+        raise errors.get()
+    finally:
+        for child in children:
+            try:
+                child.kill()
+            except:
+                pass
 
 # foo --sentinel sync-wpt.py --sentinel sync-cert.py -- ./wpt serve
 if __name__ == '__main__':
@@ -120,5 +142,5 @@ if __name__ == '__main__':
                              'be restarted according to the behavior of all '
                              'provided "sentinels." If the command exits for '
                              'other reason, this command will fail.')
-    args = parser.parse_args()
+
     main(**vars(parser.parse_args()))
