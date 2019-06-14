@@ -11,10 +11,40 @@
     path: "/var/www/web-platform-tests/.well-known"
     state: directory
 
-- name: test if certbot has been initialized
+- name: test if certificate is available
   stat:
     path: /etc/letsencrypt/live/{{fqdn}}/fullchain.pem
   register: cert_file
+
+- name: Generate self-signed certificate
+  shell: |
+    set -e
+    mkdir -p /etc/letsencrypt/live/{{fqdn}}
+    openssl req -x509 -nodes -subj '/CN=web-platform-tests.live' -days 365 \
+      -newkey rsa:4096 -sha256 \
+      -keyout /etc/letsencrypt/live/{{fqdn}}/privkey.pem \
+      -out /etc/letsencrypt/live/{{fqdn}}/fullchain.pem
+
+    md5sum /etc/letsencrypt/live/{{fqdn}}/fullchain.pem > \
+      /etc/letsencrypt/live/{{fqdn}}/fullchain.pem.md5sum
+
+  when: cert_file.stat.exists == false
+
+# CertBot runs as the root user. Enable the setgid flag to ensure that the
+# www-data user can read the files it inserts into the directories reserved for
+# TLS certificates.
+- name: Allow application user to read certificate
+  file:
+    path: /etc/letsencrypt
+    state: directory
+    group: www-data
+    mode: 2750
+    recurse: true
+
+- name: test if certbot has been initialized
+  shell: md5sum --check /etc/letsencrypt/live/{{fqdn}}/fullchain.pem.md5sum
+  ignore_errors: true
+  register: cert_file_is_self_signed
 
 - name: initialize certbot
   command: >
@@ -88,18 +118,7 @@
       -d xn--n8j6ds53lwwkrqhv28a.xn--n8j6ds53lwwkrqhv28a.not-web-platform-tests.live
       -d xn--n8j6ds53lwwkrqhv28a.xn--n8j6ds53lwwkrqhv28a.web-platform-tests.live
 
-  when: cert_file.stat.exists == false
-
-# CertBot runs as the root user. Enable the setgid flag to ensure that the
-# www-data user can read the files it inserts into the directories reserved for
-# TLS certificates.
-- name: Allow application user to read certificate
-  file:
-    path: /etc/letsencrypt
-    state: directory
-    group: www-data
-    mode: 2750
-    recurse: true
+  when: cert_file_is_self_signed.rc == 0
 
 - name: Add cron job for cert renewal
   cron:

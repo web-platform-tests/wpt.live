@@ -5,96 +5,96 @@
   gather_facts: False
 
   tasks:
-  - name: update package repository
-    apt:
-      update_cache: yes
-
-  - name: install the various packages we need
-    apt:
-      name: "{{ packages }}"
-    vars:
-      packages:
-        - git
-        - authbind
-        - python2.7
-        - virtualenv
-        - python-pip
-        - unattended-upgrades
-
-  - name: Disallow password authentication
-    lineinfile: dest=/etc/ssh/sshd_config
-                regexp="^PasswordAuthentication"
-                line="PasswordAuthentication no"
-                state=present
-    notify: Restart ssh
-
-  - name: Allow non-root process to bind to web ports
-    file:
-      path: '{{item}}'
-      state: touch
-      mode: '0777'
-    with_items:
-      - /etc/authbind/byport/80
-      - /etc/authbind/byport/443
-
-  - name: check out the web-platform-tests
-    git:
-      repo: 'https://github.com/web-platform-tests/wpt.git'
-      dest: /var/www/web-platform-tests
-      force: yes
-
-  - name: make python virtualenv
-    pip:
-      name: virtualenv
-      virtualenv: /var/www/web-platform-tests/_venv
-
-  - name: Install WPT services
-    copy:
-      src: '{{item}}'
-      dest: /etc/systemd/system/
-    with_items:
-      - files/wpt.service
-      - files/wpt-sync.service
-      - files/wpt-sync.timer
-      - files/wpt-monitor.service
-      - files/wpt-monitor.timer
-
-  - name: Install scripts for recurrent tasks
-    copy:
-      src: '{{item}}'
-      dest: /usr/local/bin
-      owner: root
-      mode: '0700'
-    with_items:
-      - files/sync-wpt.sh
-      - files/monitor-wpt.sh
-
-  - name: ensure config.json is in the correct location
-    copy:
-      src: files/config-{{ vagrant_provision | ternary("development", "production") }}.json
-      dest: /var/www/web-platform-tests/config.json
-
-  - name: Enable WPT services in systemd
-    systemd:
-      enabled: True
-      name: '{{item}}'
-      state: started
-    with_items:
-      - wpt
-      - wpt-sync.timer
-      - wpt-monitor.timer
+      #  - name: update package repository
+      #    apt:
+      #      update_cache: yes
+      #
+      #  - name: install the various packages we need
+      #    apt:
+      #      name: "{{ packages }}"
+      #    vars:
+      #      packages:
+      #        - git
+      #        - authbind
+      #        - python2.7
+      #        - virtualenv
+      #        - python-pip
+      #        - unattended-upgrades
+      #
+      #  - name: Disallow password authentication
+      #    lineinfile: dest=/etc/ssh/sshd_config
+      #                regexp="^PasswordAuthentication"
+      #                line="PasswordAuthentication no"
+      #                state=present
+      #    notify: Restart ssh
+      #
+      #  - name: Allow non-root process to bind to web ports
+      #    file:
+      #      path: '{{item}}'
+      #      state: touch
+      #      mode: '0777'
+      #    with_items:
+      #      - /etc/authbind/byport/80
+      #      - /etc/authbind/byport/443
+      #
+      #  - name: check out the web-platform-tests
+      #    git:
+      #      repo: 'https://github.com/web-platform-tests/wpt.git'
+      #      dest: /var/www/web-platform-tests
+      #      force: yes
+      #
+      #  - name: make python virtualenv
+      #    pip:
+      #      name: virtualenv
+      #      virtualenv: /var/www/web-platform-tests/_venv
+      #
+      #  - name: Install WPT services
+      #    copy:
+      #      src: '{{item}}'
+      #      dest: /etc/systemd/system/
+      #    with_items:
+      #      - files/wpt.service
+      #      - files/wpt-sync.service
+      #      - files/wpt-sync.timer
+      #      - files/wpt-monitor.service
+      #      - files/wpt-monitor.timer
+      #
+      #  - name: Install scripts for recurrent tasks
+      #    copy:
+      #      src: '{{item}}'
+      #      dest: /usr/local/bin
+      #      owner: root
+      #      mode: '0700'
+      #    with_items:
+      #      - files/sync-wpt.sh
+      #      - files/monitor-wpt.sh
+      #
+      #  - name: ensure config.json is in the correct location
+      #    copy:
+      #      src: files/config-{{ vagrant_provision | ternary("development", "production") }}.json
+      #      dest: /var/www/web-platform-tests/config.json
+      #
+      #  - name: Enable WPT services in systemd
+      #    systemd:
+      #      enabled: True
+      #      name: '{{item}}'
+      #      state: started
+      #    with_items:
+      #      - wpt
+      #      - wpt-sync.timer
+      #      - wpt-monitor.timer
 
   - include: tasks/certbot.yml
     when: not vagrant_provision
 
-  # force_restart is false by default this can be set via the command line using --extra-vars
-  # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
-  - name: reboot the machine
-    command: /sbin/shutdown -r +1
-    async: 0
-    poll: 0
-    ignore_errors: true
-    when: force_restart
+    #  # force_restart is false by default this can be set via the command line using --extra-vars
+    #  # $ ansible-playbook playbook.yml --extra-vars "force_restart=true"
+    #  - name: reboot the machine
+    #    command: /sbin/shutdown -r +1
+    #    async: 0
+    #    poll: 0
+    #    ignore_errors: true
+    #    when: force_restart
 
   handlers:
     - name: Restart ssh
