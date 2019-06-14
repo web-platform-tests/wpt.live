@@ -17,15 +17,6 @@ google-cloud-platform-credentials.json:
 	@echo You need this. >&2
 	@exit 1
 
-gcp-image: google-cloud-platform-credentials.json provisioning/configure-machine-image.sh
-	cd provisioning && \
-		packer build \
-			--only googlecompute \
-			--var project_id=wptdashboard \
-			--var timestamp=$(shell date --iso-8601=seconds) \
-			--var revision=$(shell git rev-parse --short HEAD) \
-			packer.conf
-
 .PHONY: login
 login: google-cloud-platform-credentials.json
 	cat $< | \
