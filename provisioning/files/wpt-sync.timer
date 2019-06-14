@@ -1,9 +1,0 @@
-[Unit]
-Description=Synchronize WPT every 60 seconds
-
-[Timer]
-OnBootSec=0 seconds
-OnUnitActiveSec=1 minute
-
-[Install]
-WantedBy=timers.target
