@@ -16,6 +16,26 @@
     path: /etc/letsencrypt/live/{{fqdn}}/fullchain.pem
   register: cert_file
 
+# The "production" version of the server configuration references authentic
+# TLS certifificates as produced by certbot. The server cannot be run in this
+# state prior to the issuance of these certificates.
+#
+# The "development" version of the server configuration relies on a self-signed
+# TLS certificate. This is sufficient for the purposes of completing the ACME
+# protocol with the Let's Encrypt service because that does not rely on HTTPS.
+- name: insert development version of server configuration file
+  copy:
+    src: files/config-development.json
+    dest: /var/www/web-platform-tests/config.json
+  when: cert_file.stat.exists == false
+
+- name: Restart server
+  systemd:
+    enabled: True
+    name: wpt
+    state: restarted
+  when: cert_file.stat.exists == false
+
 - name: initialize certbot
   command: >
     certbot certonly
@@ -100,6 +120,19 @@
     group: www-data
     mode: 2750
     recurse: true
+
+- name: reinstate production version of server configuration file
+  copy:
+    src: files/config-production.json
+    dest: /var/www/web-platform-tests/config.json
+  when: cert_file.stat.exists == false
+
+- name: Restart server
+  systemd:
+    enabled: True
+    name: wpt
+    state: restarted
+  when: cert_file.stat.exists == false
 
 - name: Add cron job for cert renewal
   cron:
