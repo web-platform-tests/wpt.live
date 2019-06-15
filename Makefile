@@ -1,6 +1,20 @@
 HOST=gcr.io
 PROJECT_ID=wptdashboard
 
+.PHONY: build-tls-sync
+build-tls-sync:
+	docker build \
+		--tag web-platform-tests-live-tls-sync \
+		--file Dockerfile-tls-sync \
+		.
+
+run-tls-sync: build-tls-sync
+	docker run \
+		--rm \
+		--interactive \
+		--tty \
+		web-platform-tests-live-tls-sync
+
 deploy:
 	docker build -t web-platform-tests-live .
 	docker run \

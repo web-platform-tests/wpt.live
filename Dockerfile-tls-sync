@@ -1,0 +1,59 @@
+FROM ubuntu:18.04
+
+# No interactive frontend during docker build
+ENV DEBIAN_FRONTEND=noninteractive \
+    DEBCONF_NONINTERACTIVE_SEEN=true
+
+RUN apt-get -qqy update && \
+  apt-get -qqy install \
+    apt-transport-https \
+    curl \
+    software-properties-common && \
+  CLOUD_SDK_REPO="cloud-sdk-$(grep VERSION_CODENAME /etc/os-release | cut -d '=' -f 2)" && \
+  echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | \
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add - && \
+  add-apt-repository universe && \
+  add-apt-repository ppa:certbot/certbot && \
+  apt-get -qqy update && \
+  apt-get -qqy install \
+    certbot \
+    google-cloud-sdk \
+    locales \
+    python3-pip \
+    tzdata
+
+RUN pip3 install awscli boto3
+
+ENV TZ "UTC"
+RUN echo "${TZ}" > /etc/timezone \
+  && dpkg-reconfigure --frontend noninteractive tzdata
+
+# Set the locale
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+COPY src/certify.py /usr/local/bin/certify.py
+
+CMD bash -c 'set -e; \
+  mkdir -p /etc/letsencrypt/live/web-platform-tests.live; \
+  gsutil cp \
+    gs://web-platform-tests-live/fullchain.pem \
+    gs://web-platform-tests-live/privkey.pem \
+    /etc/letsencrypt/live/web-platform-tests.live; \
+  while true; do \
+    certify.py \
+      request \
+      --domain web-platform-tests.live \
+      --email infrastructure@bocoup.com \
+      --alias web-platform-tests.live \
+      --alias www2.web-platform-tests.live; \
+    gsutil cp \
+      /etc/letsencrypt/live/web-platform-tests.live/fullchain.pem \
+      /etc/letsencrypt/live/web-platform-tests.live/privkey.pem \
+      gs://web-platform-tests-live; \
+    sleep $((60 * 60 * 24)); \
+  done'
