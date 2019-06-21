@@ -10,8 +10,7 @@ import ssl
 import subprocess
 import time
 
-import boto3
-import botocore
+from google.cloud import dns
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
@@ -32,6 +31,8 @@ hostname = socket.gethostname()
 RENEWAL_THRESHOLD = 30
 # Maximum number of seconds to wait for a DNS change to be applied
 DNS_TIMEOUT = 180
+# Number of seconds to wait between consecutive queries
+CHANGE_POLL_INTERVAL = 5
 
 def qualify_domain(domain):
     if not domain.endswith('.'):
@@ -83,16 +84,18 @@ def get_certificate_expiry(fqdn):
 
     return cert.not_valid_after
 
-def request_certificate(email, zone_id, domain_name, aliases):
+def request_certificate(email, zone, domain_name, aliases):
     '''Retrieve a free TLS certificate for a given domain and set of aliases
     (e.g. example.com and www.example.com) using the ACME protocol as
     implemented by the Certbot application.'''
 
-    authentication_hook = '{} update-dns --action UPSERT --zone-id {}'.format(
-        __file__, zone_id
+    fqdn = qualify_domain(domain_name)
+
+    authentication_hook = '{} dns-modify --action create --zone-name {} --domain {}'.format(
+        __file__, zone, fqdn
     )
-    cleanup_hook = '{} update-dns --action DELETE --zone-id {}'.format(
-        __file__, zone_id
+    cleanup_hook = '{} dns-modify --action destroy --zone-name {} --domain {}'.format(
+        __file__, zone, fqdn
     )
 
     # When multiple domains are specified, Certbot interprets the first
@@ -128,58 +131,50 @@ def request_certificate(email, zone_id, domain_name, aliases):
             '--email', email
     ])
 
+
 def upload_certificate(domain_name):
     raise NotImplemented()
 
-def update_dns(action, zone_id, max_wait):
+def _dns_modify(action, zone, record_set, max_wait):
+    changes = zone.changes()
+
+    if action == 'create':
+        changes.add_record_set(record_set)
+    else:
+        changes.delete_record_set(record_set)
+
+    start = time.time()
+
+    while changes.status != 'done':
+        if time.time() - start > max_wait:
+            raise Exception('Timed out')
+
+        time.sleep(CHANGE_POLL_INTERVAL)
+        changes.reload()
+
+def dns_modify(action, zone_name, domain, max_wait):
     '''Create or destroy a DNS entry as part of the ACME protocol.'''
 
-    client = boto3.client('route53')
+    client = dns.Client()
+    zone = client.zone(zone_name, domain)
 
-    fqdn = qualify_domain(os.environ['CERTBOT_DOMAIN'])
-    comment = '{} managing record for ACME challenge'.format(hostname)
-    record_name = '_acme-challenge.{}'.format(fqdn)
-    record_value = '"{}"'.format(os.environ['CERTBOT_VALIDATION'])
-
-    response = client.change_resource_record_sets(
-        HostedZoneId=zone_id,
-        ChangeBatch={
-            'Comment': comment,
-            'Changes': [
-                {
-                    'Action': action,
-                    'ResourceRecordSet': {
-                        'Name': record_name,
-                        'ResourceRecords': [
-                            { 'Value': record_value }
-                        ],
-                        'Type': 'TXT',
-                        'TTL': 30
-                    }
-                }
-            ]
-        }
+    record_set_name = '_acme-challenge.{}'.format(qualify_domain(domain)),
+    record_set = zone.resource_record_set(
+        record_set_name,
+        record_type='TXT',
+        ttl=30,
+        rrdatas=[
+            '"{}"'.format(os.environ['CERTBOT_VALIDATION'])
+        ]
     )
 
-    request_id = response['ChangeInfo']['Id']
+    for record_set in zone.list_resource_record_sets():
+        if record_set.name == 'TXT' and record_set.name == record_set_name:
+            _dns_modify('destroy', zone, record_set, max_wait)
+            break
 
-    start_time = time.time()
-
-    while response['ChangeInfo']['Status'] != 'INSYNC':
-        if time.time() - start_time > max_wait:
-            raise Exception(
-                'Waited {} seconds for change to apply'.format(max_wait)
-            )
-
-        logger.debug(
-            'Change in {} state. Waiting...'.format(
-                response['ChangeInfo']['Status']
-            )
-        )
-
-        time.sleep(1)
-
-        response = client.get_change(Id=request_id)
+    if action == 'create':
+        _dns_modify(action, zone, record_set, max_wait)
 
 def request(domain_name, email, aliases):
     '''For all the AWS CloudFront distributions accessible by the current user,
@@ -197,10 +192,10 @@ def request(domain_name, email, aliases):
         |                    |      v
         |                    | .---------.
         |                    | | certbot |  .----------------------.
-        |                    | |    +------>| update_dns (create)  |
+        |                    | |    +------>| dns_modify (create)  |
         |                    | |    |    |  '----------------------'
         |                    | |    |    |  .----------------------.
-        |                    | |    +------>| update_dns (destroy) |
+        |                    | |    +------>| dns_modify (destroy) |
         |         .-----------------'    |  '----------------------'
         |         v          | '---------'
         | upload_certificate |
@@ -254,17 +249,18 @@ if __name__ == '__main__':
                                 required=True)
     parser_request.set_defaults(func=request)
 
-    parser_update = subparsers.add_parser(
-        'update-dns', help=update_dns.__doc__
+    parser_modify = subparsers.add_parser(
+        'dns-modify', help=dns_modify.__doc__
     )
-    parser_update.add_argument(
+    parser_modify.add_argument(
         '--action',
         required=True,
-        choices=('UPSERT', 'DELETE')
+        choices=('create', 'destroy')
     )
-    parser_update.add_argument('--zone-id', required=True)
-    parser_update.add_argument('--max-wait', type=int, default=DNS_TIMEOUT)
-    parser_update.set_defaults(func=update_dns)
+    parser_modify.add_argument('--zone-name', required=True)
+    parser_modify.add_argument('--domain', required=True)
+    parser_modify.add_argument('--max-wait', type=int, default=DNS_TIMEOUT)
+    parser_modify.set_defaults(func=dns_modify)
 
     args = vars(parser.parse_args())
     func = args.pop('func')

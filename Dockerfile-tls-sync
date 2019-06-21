@@ -24,7 +24,7 @@ RUN apt-get -qqy update && \
     python3-pip \
     tzdata
 
-RUN pip3 install awscli boto3
+RUN pip3 install google-cloud-dns
 
 ENV TZ "UTC"
 RUN echo "${TZ}" > /etc/timezone \
