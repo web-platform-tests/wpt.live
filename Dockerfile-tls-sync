@@ -14,48 +14,46 @@ RUN apt-get -qqy update && \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
     apt-key add - && \
-  add-apt-repository universe && \
-  add-apt-repository ppa:certbot/certbot && \
   apt-get -qqy update && \
   apt-get -qqy install \
-    certbot \
+    git \
     google-cloud-sdk \
-    locales \
-    python3-pip \
-    tzdata
+    python3-pip
 
-RUN pip3 install google-cloud-dns google-cloud-storage
+# cryptography 2.1.4 is installed by default, but cryptography>=2.3 is required
+# by `PyOpenSSL` (a dependency of `certbot`)
 
-ENV TZ "UTC"
-RUN echo "${TZ}" > /etc/timezone \
-  && dpkg-reconfigure --frontend noninteractive tzdata
+RUN git clone https://github.com/certbot/certbot --branch v0.35.1 && \
+  cd certbot && \
+  pip3 install --upgrade cryptography && \
+  python3 setup.py install && \
+  cd certbot-dns-google && \
+  python3 setup.py install
 
-# Set the locale
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+# > If you would like to obtain a wildcard certificate from Let’s Encrypt’s
+# > ACMEv2 server, you’ll need to include
+# >
+# >     --server https://acme-v02.api.letsencrypt.org/directory
+# >
+# > on the command line as well.
+#
+# https://certbot.eff.org/docs/install.html?highlight=wildcard
 
-COPY src/certify.py /usr/local/bin/certify.py
-
-CMD bash -c 'set -e; \
-  mkdir -p /etc/letsencrypt/live/web-platform-tests.live; \
-  gsutil cp \
-    gs://web-platform-tests-live/fullchain.pem \
-    gs://web-platform-tests-live/privkey.pem \
-    /etc/letsencrypt/live/web-platform-tests.live; \
+CMD bash -c '\
   while true; do \
-    certify.py \
-      request \
-      --zone web-platform-tests.live \
-      --domain web-platform-tests.live \
-      --bucket web-platform-tests-live \
-      --email infrastructure@bocoup.com \
-      --alias web-platform-tests.live \
-      --alias www2.web-platform-tests.live; \
-    gsutil cp \
-      /etc/letsencrypt/live/web-platform-tests.live/fullchain.pem \
-      /etc/letsencrypt/live/web-platform-tests.live/privkey.pem \
-      gs://web-platform-tests-live; \
-    sleep $((60 * 60 * 24)); \
+    certbot certonly \
+      -d *.wheresbob.org \
+      --dns-google \
+      --agree-tos \
+      --non-interactive \
+      --email mike@bocoup.com \
+      --test-cert \
+      --server https://acme-v02.api.letsencrypt.org/directory; \
+    if [ "$?" == "0" ]; then \
+      gsutil cp \
+        /etc/letsencrypt/live/wheresbob.org/fullchain.pem \
+        /etc/letsencrypt/live/wheresbob.org/privkey.pem \
+        gs://web-platform-tests-live; \
+    fi; \
+    sleep $((60)); \
   done'
