@@ -46,16 +46,6 @@ def unqualify_domain(domain):
 
     return domain
 
-def get_zone_id(domain):
-    response = boto3.client('route53').list_hosted_zones_by_name()
-    qualified_domain = qualify_domain(domain)
-
-    for zone in response['HostedZones']:
-        if zone['Name'] == qualified_domain:
-            return zone['Id']
-
-    raise Exception('No zone found for domain "{}"'.format(domain))
-
 def get_certificate_expiry(fqdn):
     '''Determine the expiration date ("Not valid after") of the TLS certificate
     which is currently in use by a given domain.'''
@@ -84,18 +74,18 @@ def get_certificate_expiry(fqdn):
 
     return cert.not_valid_after
 
-def request_certificate(email, zone, domain_name, aliases):
+def request_certificate(email, zone_name, domain_name, aliases):
     '''Retrieve a free TLS certificate for a given domain and set of aliases
     (e.g. example.com and www.example.com) using the ACME protocol as
     implemented by the Certbot application.'''
 
     fqdn = qualify_domain(domain_name)
 
-    authentication_hook = '{} dns-modify --action create --zone-name {} --domain {}'.format(
-        __file__, zone, fqdn
+    authentication_hook = '{} dns-modify --action create --zone {} --domain {}'.format(
+        __file__, zone_name, fqdn
     )
-    cleanup_hook = '{} dns-modify --action destroy --zone-name {} --domain {}'.format(
-        __file__, zone, fqdn
+    cleanup_hook = '{} dns-modify --action destroy --zone {} --domain {}'.format(
+        __file__, zone_name, fqdn
     )
 
     # When multiple domains are specified, Certbot interprets the first
@@ -132,8 +122,16 @@ def request_certificate(email, zone, domain_name, aliases):
     ])
 
 
-def upload_certificate(domain_name):
-    raise NotImplemented()
+def upload_certificate(bucket_name, domain_name):
+    client = storage.Client()
+    bucket = client.get_bucket('web-platform-tests-live')
+
+    for file_name in ('fullchain.pem', 'privkey.pem'):
+        local_path = '/etc/letsencrypt/live/{}/{}'.format(
+            domain_name, file_name
+        )
+        blob = bucket.blob(file_name)
+        blob.upload_from_filename(filename=local_path)
 
 def _dns_modify(action, zone, record_set, max_wait):
     changes = zone.changes()
@@ -143,6 +141,7 @@ def _dns_modify(action, zone, record_set, max_wait):
     else:
         changes.delete_record_set(record_set)
 
+    changes.create()
     start = time.time()
 
     while changes.status != 'done':
@@ -152,13 +151,20 @@ def _dns_modify(action, zone, record_set, max_wait):
         time.sleep(CHANGE_POLL_INTERVAL)
         changes.reload()
 
-def dns_modify(action, zone_name, domain, max_wait):
+def dns_modify(action, zone_name, domain_name, max_wait):
     '''Create or destroy a DNS entry as part of the ACME protocol.'''
 
     client = dns.Client()
-    zone = client.zone(zone_name, domain)
+    zone = client.zone(zone_name, domain_name)
 
-    record_set_name = '_acme-challenge.{}'.format(qualify_domain(domain)),
+    record_set_name = '_acme-challenge.{}'.format(
+        qualify_domain(os.environ['CERTBOT_DOMAIN'])
+    )
+    for record_set in zone.list_resource_record_sets():
+        if record_set.record_type == 'TXT' and record_set.name == record_set_name:
+            _dns_modify('destroy', zone, record_set, max_wait)
+            break
+
     record_set = zone.resource_record_set(
         record_set_name,
         record_type='TXT',
@@ -168,15 +174,10 @@ def dns_modify(action, zone_name, domain, max_wait):
         ]
     )
 
-    for record_set in zone.list_resource_record_sets():
-        if record_set.name == 'TXT' and record_set.name == record_set_name:
-            _dns_modify('destroy', zone, record_set, max_wait)
-            break
-
     if action == 'create':
         _dns_modify(action, zone, record_set, max_wait)
 
-def request(domain_name, email, aliases):
+def request(zone_name, domain_name, bucket_name, email, aliases):
     '''For all the AWS CloudFront distributions accessible by the current user,
     identify which have been marked for automated TLS certificate renewal, and
     update any certificates which are due to expire.
@@ -213,10 +214,8 @@ def request(domain_name, email, aliases):
 
     logger.debug('Requesting certificate')
 
-    zone_id = get_zone_id(domain_name)
-
     try:
-        request_certificate(email, zone_id, domain_name, aliases)
+        request_certificate(email, zone_name, domain_name, aliases)
     except Exception as e:
         logger.critical(
             'Failed to request certificate: {}'.format(e)
@@ -225,7 +224,7 @@ def request(domain_name, email, aliases):
 
     logger.debug('Uploading certificate')
 
-    upload_certificate(domain_name)
+    upload_certificate(bucket_name, domain_name)
 
     logger.debug('Successfully uploaded certificate')
 
@@ -243,7 +242,9 @@ if __name__ == '__main__':
     parser.set_defaults(func=request)
 
     parser_request = subparsers.add_parser('request', help=request.__doc__)
+    parser_request.add_argument('--zone', dest='zone_name', required=True)
     parser_request.add_argument('--domain', dest='domain_name', required=True)
+    parser_request.add_argument('--bucket', dest='bucket_name', required=True)
     parser_request.add_argument('--email', required=True)
     parser_request.add_argument('--alias', dest='aliases', action='append',
                                 required=True)
@@ -257,8 +258,8 @@ if __name__ == '__main__':
         required=True,
         choices=('create', 'destroy')
     )
-    parser_modify.add_argument('--zone-name', required=True)
-    parser_modify.add_argument('--domain', required=True)
+    parser_modify.add_argument('--zone', dest='zone_name', required=True)
+    parser_modify.add_argument('--domain', dest='domain_name', required=True)
     parser_modify.add_argument('--max-wait', type=int, default=DNS_TIMEOUT)
     parser_modify.set_defaults(func=dns_modify)
 

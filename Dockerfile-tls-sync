@@ -24,7 +24,7 @@ RUN apt-get -qqy update && \
     python3-pip \
     tzdata
 
-RUN pip3 install google-cloud-dns
+RUN pip3 install google-cloud-dns google-cloud-storage
 
 ENV TZ "UTC"
 RUN echo "${TZ}" > /etc/timezone \
@@ -47,7 +47,9 @@ CMD bash -c 'set -e; \
   while true; do \
     certify.py \
       request \
+      --zone web-platform-tests.live \
       --domain web-platform-tests.live \
+      --bucket web-platform-tests-live \
       --email infrastructure@bocoup.com \
       --alias web-platform-tests.live \
       --alias www2.web-platform-tests.live; \
