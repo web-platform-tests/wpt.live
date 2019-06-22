@@ -29,14 +29,14 @@ RUN mkdir /root/wpt && \
   git init . && \
   git remote add origin https://github.com/web-platform-tests/wpt.git
 
-COPY src/fetch-certs.py src/wrapper.py src/sync-wpt.py /usr/local/bin/
+COPY src/fetch-certs.py src/fetch-wpt.py src/wrapper.py /usr/local/bin/
 COPY src/wpt-config.json /root/wpt-config.json
 
 WORKDIR /root/wpt
 
 CMD git pull origin master --depth 1 --no-tags && \
   wrapper.py \
-    --sentinel 'sync-wpt.py --remote origin --branch master --period 60' \
     --sentinel 'fetch-certs.py --bucket web-platform-tests-live --period 3600' \
+    --sentinel 'fetch-wpt.py --remote origin --branch master --period 60' \
     -- \
       ./wpt serve --config ../wpt-config.json
