@@ -16,7 +16,6 @@ run-%: %
 		--publish 80:80 \
 		--publish 8000:8000 \
 		--publish 443:443 \
-		--volume $(shell pwd)/../wpt:/root/wpt \
 		web-platform-tests-live-$*
 
 google-cloud-platform-credentials.json:
