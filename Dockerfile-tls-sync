@@ -42,18 +42,18 @@ RUN git clone https://github.com/certbot/certbot --branch v0.35.1 && \
 CMD bash -c '\
   while true; do \
     certbot certonly \
-      -d *.wheresbob.org \
+      -d *.web-platform-tests.live \
       --dns-google \
       --agree-tos \
       --non-interactive \
-      --email mike@bocoup.com \
+      --email infrastructure@bocoup.com \
       --test-cert \
       --server https://acme-v02.api.letsencrypt.org/directory; \
     if [ "$?" == "0" ]; then \
       gsutil cp \
-        /etc/letsencrypt/live/wheresbob.org/fullchain.pem \
-        /etc/letsencrypt/live/wheresbob.org/privkey.pem \
+        /etc/letsencrypt/live/web-platform-tests.live/fullchain.pem \
+        /etc/letsencrypt/live/web-platform-tests.live/privkey.pem \
         gs://web-platform-tests-live; \
     fi; \
-    sleep $((60)); \
+    sleep $((60 * 60 * 24)); \
   done'
