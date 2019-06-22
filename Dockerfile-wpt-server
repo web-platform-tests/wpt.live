@@ -11,6 +11,7 @@ RUN apt-get -qqy update \
     locales \
     python \
     python-pip \
+    python3 \
     tzdata
 
 ENV TZ "UTC"
@@ -23,12 +24,18 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-WORKDIR /root/wpt
-RUN git init .
+RUN mkdir /root/wpt && \
+  cd /root/wpt && \
+  git init . && \
+  git remote add origin https://github.com/web-platform-tests/wpt.git
 
-RUN git remote add origin https://github.com/web-platform-tests/wpt.git
-
+COPY src/wrapper.py src/sync-wpt.py /usr/local/bin/
 COPY src/wpt-config.json /root/wpt-config.json
 
+WORKDIR /root/wpt
+
 CMD git pull origin master --depth 1 --no-tags && \
-  python ./wpt serve --config ../wpt-config.json
+  wrapper.py \
+    --sentinel 'sync-wpt.py --remote origin --branch master --period 60' \
+    -- \
+      ./wpt serve --config ../wpt-config.json
