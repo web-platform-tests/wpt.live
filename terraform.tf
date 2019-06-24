@@ -1,124 +1,82 @@
-
-variable "region" {
-  default = "us-central1"
-}
-
-variable "zone" {
-  default = "us-central1-b"
-}
-
-variable "network_name" {
-  default = "web-platform-tests-live-network"
+locals {
+  region       = "us-central1"
+  zone         = "us-central1-b"
+  project_name = "wptdashboard"
 }
 
 provider "google" {
-  project = "wptdashboard"
-  region = "${var.region}"
+  project = "${local.project_name}"
+  region = "${local.region}"
   credentials = "${file("google-cloud-platform-credentials.json")}"
 }
 
 provider "google-beta" {
-  project = "wptdashboard"
-  region = "${var.region}"
+  project = "${local.project_name}"
+  region = "${local.region}"
   credentials = "${file("google-cloud-platform-credentials.json")}"
 }
 
 resource "google_compute_network" "default" {
-  name                    = "${var.network_name}"
+  name                    = "web-platform-tests-live-network"
   auto_create_subnetworks = "false"
 }
 
+module "wpt-server-image" {
+  source = "github.com/terraform-google-modules/terraform-google-container-vm"
+
+  container = {
+    image = "gcr.io/${local.project_name}/web-platform-tests-live-wpt-server"
+  }
+
+  restart_policy = "Always"
+}
+
+module "cert-renewer-image" {
+  source = "github.com/terraform-google-modules/terraform-google-container-vm"
+
+  container = {
+    image = "gcr.io/${local.project_name}/web-platform-tests-live-cert-renewer"
+  }
+
+  restart_policy = "Always"
+}
+
 resource "google_compute_subnetwork" "default" {
-  name                     = "${var.network_name}"
+  name                     = "web-platform-tests-live-subnetwork"
   ip_cidr_range            = "10.127.0.0/20"
   network                  = "${google_compute_network.default.self_link}"
-  region                   = "${var.region}"
+  region                   = "${local.region}"
   private_ip_google_access = true
 }
 
-data "template_file" "group1-startup-script" {
-  template = "${file("${format("%s/gceme.sh.tpl", path.module)}")}"
+module "web-platform-tests-live" {
+  source                         = "./infrastructure/web-platform-tests"
+  network_name                   = "${google_compute_network.default.name}"
+  subnetwork_name                = "${google_compute_subnetwork.default.name}"
+  region                         = "${local.region}"
+  zone                           = "${local.zone}"
 
-  vars {
-    ALT_PORT = ""
-  }
+  wpt_server_machine_image       = "${module.wpt-server-image.source_image}"
+  wpt_server_instance_labels     = "${map(
+    "${module.wpt-server-image.vm_container_label_key}",
+    "${module.wpt-server-image.vm_container_label}"
+  )}"
+  wpt_server_instance_metadata   = "${map(
+    "${module.wpt-server-image.metadata_key}",
+    "${module.wpt-server-image.metadata_value}"
+  )}"
+
+  cert_renewer_machine_image     = "${module.cert-renewer-image.source_image}"
+  cert_renewer_instance_labels   = "${map(
+    "${module.cert-renewer-image.vm_container_label_key}",
+    "${module.cert-renewer-image.vm_container_label}"
+  )}"
+  cert_renewer_instance_metadata = "${map(
+    "${module.cert-renewer-image.metadata_key}",
+    "${module.cert-renewer-image.metadata_value}"
+  )}"
 }
 
-data "template_file" "group2-startup-script" {
-  template = "${file("${format("%s/gceme.sh.tpl", path.module)}")}"
-
-  vars {
-    ALT_PORT = "8001"
-  }
-}
-
-module "mig1" {
-  # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
-  source            = "github.com/dcaba/terraform-google-managed-instance-group"
-  providers {
-    google-beta = "google-beta"
-  }
-  version           = "1.1.13"
-  region            = "${var.region}"
-  zone              = "${var.zone}"
-  name              = "${var.network_name}-group1"
-  size              = 2
-  service_port      = 80
-  service_port_name = "http"
-  http_health_check = false
-  target_pools      = ["${module.wpt-servers.target_pool}"]
-  target_tags       = ["allow-service1"]
-  startup_script    = "${data.template_file.group1-startup-script.rendered}"
-  network           = "${google_compute_subnetwork.default.name}"
-  subnetwork        = "${google_compute_subnetwork.default.name}"
-}
-
-module "mig2" {
-  # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
-  source            = "github.com/dcaba/terraform-google-managed-instance-group"
-  providers {
-    google-beta = "google-beta"
-  }
-  region            = "${var.region}"
-  zone              = "${var.zone}"
-  name              = "${var.network_name}-group2"
-  size              = 1
-  service_port      = 8001
-  service_port_name = "http"
-  http_health_check = false
-  target_pools      = ["${module.cert-renewer.target_pool}"]
-  target_tags       = ["allow-service1"]
-  startup_script    = "${data.template_file.group2-startup-script.rendered}"
-  network           = "${google_compute_subnetwork.default.name}"
-  subnetwork        = "${google_compute_subnetwork.default.name}"
-}
-
-resource "google_compute_address" "web-platform-tests-live-address" {
-  name = "web-platform-tests-live-address"
-}
-
-module "wpt-servers" {
-  source       = "./infrastructure/load-balancer"
-  region       = "${var.region}"
-  name         = "${var.network_name}-wpt"
-  service_port = "${module.mig1.service_port}"
-  target_tags  = ["${module.mig1.target_tags}"]
-  network      = "${google_compute_subnetwork.default.name}"
-  ip_address   = "${google_compute_address.web-platform-tests-live-address.address}"
-  session_affinity = "CLIENT_IP_PROTO"
-}
-
-module "cert-renewer" {
-  source       = "./infrastructure/load-balancer"
-  region       = "${var.region}"
-  name         = "${var.network_name}-tls"
-  service_port = "${module.mig2.service_port}"
-  target_tags  = ["${module.mig2.target_tags}"]
-  network      = "${google_compute_subnetwork.default.name}"
-  ip_address   = "${google_compute_address.web-platform-tests-live-address.address}"
-  session_affinity = "CLIENT_IP_PROTO"
-}
-
-output "load-balancer-ip" {
-  value = "${google_compute_address.web-platform-tests-live-address.address}"
+output "web-platform-tests-live-address" {
+  value = "${module.web-platform-tests-live.address}"
 }
