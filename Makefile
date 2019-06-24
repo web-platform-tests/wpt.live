@@ -1,11 +1,11 @@
 HOST=gcr.io
 PROJECT_ID=wptdashboard
 
-.PHONY: tls-sync wpt-server
-tls-sync wpt-server:
+.PHONY: cert-renewer wpt-server
+cert-renewer wpt-server:
 	docker build \
 		--tag web-platform-tests-live-$@ \
-		--file Dockerfile-$@ \
+		--file $@.Dockerfile \
 		.
 
 run-%: %

@@ -86,7 +86,7 @@ module "mig2" {
   service_port      = 8001
   service_port_name = "http"
   http_health_check = false
-  target_pools      = ["${module.tls-certificate-renewer.target_pool}"]
+  target_pools      = ["${module.cert-renewer.target_pool}"]
   target_tags       = ["allow-service1"]
   startup_script    = "${data.template_file.group2-startup-script.rendered}"
   network           = "${google_compute_subnetwork.default.name}"
@@ -98,7 +98,7 @@ resource "google_compute_address" "web-platform-tests-live-address" {
 }
 
 module "wpt-servers" {
-  source       = "./load-balancer"
+  source       = "./infrastructure/load-balancer"
   region       = "${var.region}"
   name         = "${var.network_name}-wpt"
   service_port = "${module.mig1.service_port}"
@@ -108,8 +108,8 @@ module "wpt-servers" {
   session_affinity = "CLIENT_IP_PROTO"
 }
 
-module "tls-certificate-renewer" {
-  source       = "./load-balancer"
+module "cert-renewer" {
+  source       = "./infrastructure/load-balancer"
   region       = "${var.region}"
   name         = "${var.network_name}-tls"
   service_port = "${module.mig2.service_port}"
