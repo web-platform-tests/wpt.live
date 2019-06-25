@@ -30,15 +30,15 @@ module "wpt-server-image" {
     env = [
       {
         name  = "WPT_HOST"
-        value = "web-platform-tests.live"
+        value = "wheresbob.org"
       },
       {
         name  = "WPT_ALT_HOST"
-        value = "not-web-platform-tests.live"
+        value = "not-wheresbob.org"
       },
       {
         name  = "WPT_BUCKET"
-        value = "web-platform-tests-live"
+        value = "wheresbob-org"
       }
     ]
   }
@@ -68,7 +68,7 @@ module "web-platform-tests-live" {
   source                         = "./infrastructure/web-platform-tests"
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
-  bucket_name                    = "web-platform-tests-live"
+  bucket_name                    = "wheresbob-org"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 
