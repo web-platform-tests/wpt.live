@@ -16,6 +16,9 @@ run-%: %
 		--publish 80:80 \
 		--publish 8000:8000 \
 		--publish 443:443 \
+		--env WPT_HOST \
+		--env WPT_ALT_HOST \
+		--env WPT_BUCKET \
 		web-platform-tests-live-$*
 
 google-cloud-platform-credentials.json:

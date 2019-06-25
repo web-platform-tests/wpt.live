@@ -26,6 +26,21 @@ module "wpt-server-image" {
 
   container = {
     image = "gcr.io/${local.project_name}/web-platform-tests-live-wpt-server"
+
+    env = [
+      {
+        name  = "WPT_HOST"
+        value = "web-platform-tests.live"
+      },
+      {
+        name  = "WPT_ALT_HOST"
+        value = "not-web-platform-tests.live"
+      },
+      {
+        name  = "WPT_BUCKET"
+        value = "web-platform-tests-live"
+      }
+    ]
   }
 
   restart_policy = "Always"

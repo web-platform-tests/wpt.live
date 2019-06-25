@@ -4,9 +4,9 @@
     "https":[443]
   },
   "bind_address": false,
-  "browser_host": "web-platform-tests.live",
+  "browser_host": "${WPT_HOST}",
   "alternate_hosts": {
-    "alt": "not-web-platform-tests.live"
+    "alt": "${WPT_ALT_HOST}"
   },
   "check_subdomains": false
 }
