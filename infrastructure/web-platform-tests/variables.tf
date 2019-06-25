@@ -33,3 +33,11 @@ variable "wpt_server_instance_metadata" {
 variable "cert_renewer_machine_image" {
   type = "string"
 }
+
+variable "cert_renewer_instance_labels" {
+  type = "map"
+}
+
+variable "cert_renewer_instance_metadata" {
+  type = "map"
+}
