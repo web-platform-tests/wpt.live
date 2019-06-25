@@ -4,16 +4,26 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
 
-RUN apt-get -qqy update \
-  && apt-get -qqy install \
+RUN \
+  apt-get -qqy update && \
+  apt-get -qqy install \
     curl \
     gettext-base \
     git \
+    gnupg \
     locales \
     python \
     python-pip \
     python3 \
     tzdata
+
+RUN \
+  CLOUD_SDK_REPO="cloud-sdk-$(grep VERSION_CODENAME /etc/os-release | cut -d '=' -f 2)" && \
+  echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | \
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+  apt-get -qqy update && \
+  apt-get -qqy install google-cloud-sdk
 
 ENV TZ "UTC"
 RUN echo "${TZ}" > /etc/timezone \
