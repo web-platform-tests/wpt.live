@@ -47,6 +47,10 @@ module "cert-renewers" {
   subnetwork        = "${var.subnetwork_name}"
 }
 
+resource "google_storage_bucket" "persistance" {
+  name = "${var.bucket_name}"
+}
+
 resource "google_compute_address" "web-platform-tests-live-address" {
   name = "web-platform-tests-live-address"
 }

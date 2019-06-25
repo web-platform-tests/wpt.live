@@ -68,6 +68,7 @@ module "web-platform-tests-live" {
   source                         = "./infrastructure/web-platform-tests"
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
+  bucket_name                    = "web-platform-tests-live"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 

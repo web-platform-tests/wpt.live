@@ -14,6 +14,10 @@ variable "subnetwork_name" {
   type = "string"
 }
 
+variable "bucket_name" {
+  type = "string"
+}
+
 variable "wpt_server_machine_image" {
   type = "string"
 }
