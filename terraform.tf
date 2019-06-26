@@ -1,7 +1,9 @@
 locals {
-  region       = "us-central1"
-  zone         = "us-central1-b"
-  project_name = "wptdashboard"
+  region        = "us-central1"
+  zone          = "us-central1-b"
+  project_name  = "wptdashboard"
+  host_name     = "wheresbob.org"
+  alt_host_name = "thecolbert.report"
 }
 
 provider "google" {
@@ -30,11 +32,11 @@ module "wpt-server-image" {
     env = [
       {
         name  = "WPT_HOST"
-        value = "wheresbob.org"
+        value = "${local.host_name}"
       },
       {
         name  = "WPT_ALT_HOST"
-        value = "thecolbert.report"
+        value = "${local.alt_host_name}"
       },
       {
         name  = "WPT_BUCKET"
@@ -55,11 +57,11 @@ module "cert-renewer-image" {
     env = [
       {
         name  = "WPT_HOST"
-        value = "wheresbob.org"
+        value = "${local.host_name}"
       },
       {
         name  = "WPT_ALT_HOST"
-        value = "thecolbert.report"
+        value = "${local.alt_host_name}"
       },
       {
         name  = "WPT_BUCKET"
@@ -88,6 +90,8 @@ module "web-platform-tests-live" {
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
   bucket_name                    = "web-platform-tests-live-demo"
+  host_name                      = "${local.host_name}"
+  alt_host_name                  = "${local.alt_host_name}"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 

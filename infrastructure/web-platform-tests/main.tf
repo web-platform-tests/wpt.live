@@ -54,10 +54,6 @@ resource "google_storage_bucket" "persistance" {
   name = "${var.bucket_name}"
 }
 
-resource "google_compute_address" "web-platform-tests-live-address" {
-  name = "web-platform-tests-live-address"
-}
-
 module "wpt-server-balancer" {
   source       = "../load-balancer"
   region       = "${var.region}"
