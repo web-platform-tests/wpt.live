@@ -34,11 +34,11 @@ module "wpt-server-image" {
       },
       {
         name  = "WPT_ALT_HOST"
-        value = "not-wheresbob.org"
+        value = "thecolbert.report"
       },
       {
         name  = "WPT_BUCKET"
-        value = "wheresbob-org"
+        value = "web-platform-tests-live-demo"
       }
     ]
   }
@@ -59,11 +59,11 @@ module "cert-renewer-image" {
       },
       {
         name  = "WPT_ALT_HOST"
-        value = "not-wheresbob.org"
+        value = "thecolbert.report"
       },
       {
         name  = "WPT_BUCKET"
-        value = "wheresbob-org"
+        value = "web-platform-tests-live-demo"
       }
     ]
   }
@@ -87,7 +87,7 @@ module "web-platform-tests-live" {
 
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
-  bucket_name                    = "wheresbob-org"
+  bucket_name                    = "web-platform-tests-live-demo"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 
