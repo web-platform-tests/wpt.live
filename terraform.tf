@@ -66,6 +66,10 @@ resource "google_compute_subnetwork" "default" {
 
 module "web-platform-tests-live" {
   source                         = "./infrastructure/web-platform-tests"
+  providers {
+    google-beta = "google-beta"
+  }
+
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
   bucket_name                    = "wheresbob-org"

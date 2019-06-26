@@ -1,3 +1,6 @@
+# https://github.com/hashicorp/terraform/issues/17399
+provider "google-beta" {}
+
 module "wpt-servers" {
   # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
   source            = "github.com/dcaba/terraform-google-managed-instance-group"
