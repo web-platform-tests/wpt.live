@@ -51,6 +51,21 @@ module "cert-renewer-image" {
 
   container = {
     image = "gcr.io/${local.project_name}/web-platform-tests-live-cert-renewer"
+
+    env = [
+      {
+        name  = "WPT_HOST"
+        value = "wheresbob.org"
+      },
+      {
+        name  = "WPT_ALT_HOST"
+        value = "not-wheresbob.org"
+      },
+      {
+        name  = "WPT_BUCKET"
+        value = "wheresbob-org"
+      }
+    ]
   }
 
   restart_policy = "Always"

@@ -30,6 +30,10 @@ RUN git clone https://github.com/certbot/certbot --branch v0.35.1 && \
   cd certbot-dns-google && \
   python3 setup.py install
 
+ENV WPT_HOST=web-platform-tests.live \
+  WPT_ALT_HOST=not.web-platform-tests.live \
+  WPT_BUCKET=web-platform-tests-live
+
 # > If you would like to obtain a wildcard certificate from Let’s Encrypt’s
 # > ACMEv2 server, you’ll need to include
 # >
@@ -42,7 +46,10 @@ RUN git clone https://github.com/certbot/certbot --branch v0.35.1 && \
 CMD bash -c '\
   while true; do \
     certbot certonly \
-      -d *.web-platform-tests.live \
+      -d ${WPT_HOST} \
+      -d *.${WPT_HOST} \
+      -d ${WPT_ALT_HOST} \
+      -d *.${WPT_ALT_HOST} \
       --dns-google \
       --agree-tos \
       --non-interactive \
@@ -53,7 +60,7 @@ CMD bash -c '\
       gsutil cp \
         /etc/letsencrypt/live/web-platform-tests.live/fullchain.pem \
         /etc/letsencrypt/live/web-platform-tests.live/privkey.pem \
-        gs://web-platform-tests-live; \
+        gs://${WPT_BUCKET}; \
     fi; \
     sleep $((60 * 60 * 24)); \
   done'
