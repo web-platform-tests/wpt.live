@@ -23,7 +23,7 @@ module "wpt-servers" {
   target_tags            = ["allow-service1"]
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
-  service_account_scopes = ["cloud-platform"]
+  service_account_scopes = ["storage-ro", "logging-write"]
 }
 
 module "cert-renewers" {
@@ -47,7 +47,7 @@ module "cert-renewers" {
   target_tags            = ["allow-service1"]
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
-  service_account_scopes = ["storage-ro"]
+  service_account_scopes = ["cloud-platform"]
 }
 
 resource "google_storage_bucket" "persistance" {
