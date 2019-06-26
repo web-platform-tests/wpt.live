@@ -96,9 +96,14 @@ module "web-platform-tests-live" {
     "${module.wpt-server-image.vm_container_label_key}",
     "${module.wpt-server-image.vm_container_label}"
   )}"
+  # The "google-logging-enabled" metadata is undocumented, but it is apparently
+  # necessary to enable the capture of logs from the Docker image.
+  #
+  # https://github.com/GoogleCloudPlatform/konlet/issues/56
   wpt_server_instance_metadata   = "${map(
     "${module.wpt-server-image.metadata_key}",
-    "${module.wpt-server-image.metadata_value}"
+    "${module.wpt-server-image.metadata_value}",
+    "google-logging-enabled", "true"
   )}"
 
   cert_renewer_machine_image     = "${module.cert-renewer-image.source_image}"
@@ -106,9 +111,14 @@ module "web-platform-tests-live" {
     "${module.cert-renewer-image.vm_container_label_key}",
     "${module.cert-renewer-image.vm_container_label}"
   )}"
+  # The "google-logging-enabled" metadata is undocumented, but it is apparently
+  # necessary to enable the capture of logs from the Docker image.
+  #
+  # https://github.com/GoogleCloudPlatform/konlet/issues/56
   cert_renewer_instance_metadata = "${map(
     "${module.cert-renewer-image.metadata_key}",
-    "${module.cert-renewer-image.metadata_value}"
+    "${module.cert-renewer-image.metadata_value}",
+    "google-logging-enabled", "true"
   )}"
 }
 
