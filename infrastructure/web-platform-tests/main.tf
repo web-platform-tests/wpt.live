@@ -18,7 +18,6 @@ module "wpt-servers" {
   http_health_check = false
   target_pools      = ["${module.wpt-server-balancer.target_pool}"]
   target_tags       = ["allow-service1"]
-  startup_script    = "${data.template_file.group1-startup-script.rendered}"
   network           = "${var.network_name}"
   subnetwork        = "${var.subnetwork_name}"
 }
@@ -42,7 +41,6 @@ module "cert-renewers" {
   http_health_check = false
   target_pools      = ["${module.cert-renewer-balancer.target_pool}"]
   target_tags       = ["allow-service1"]
-  startup_script    = "${data.template_file.group2-startup-script.rendered}"
   network           = "${var.network_name}"
   subnetwork        = "${var.subnetwork_name}"
 }
