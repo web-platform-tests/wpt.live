@@ -51,6 +51,7 @@ CMD bash -c '\
       -d ${WPT_ALT_HOST} \
       -d *.${WPT_ALT_HOST} \
       --dns-google \
+      --dns-google-propagation-seconds 120 \
       --agree-tos \
       --non-interactive \
       --email infrastructure@bocoup.com \
