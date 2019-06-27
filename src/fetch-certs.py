@@ -60,7 +60,7 @@ def main(bucket_name, period):
             if get_hash('{}/fullchain.pem'.format(tmp_dir)) != old_fullchain_hash or (
                 get_hash('{}/privkey.pem'.format(tmp_dir)) != old_privkey_hash):
 
-                loger.debug('New files received. Copying into place.')
+                logger.debug('New files received. Copying into place.')
 
                 shutil.move('{}/fullchain.pem'.format(tmp_dir), '/root/fullchain.pem')
 
