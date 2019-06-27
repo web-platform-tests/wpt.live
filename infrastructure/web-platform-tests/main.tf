@@ -18,7 +18,7 @@ module "wpt-servers" {
   service_port           = 80
   service_port_name      = "http"
   ssh_fw_rule            = false
-  http_health_check      = false
+  http_health_check      = true
   target_pools           = ["${module.wpt-server-balancer.target_pool}"]
   target_tags            = ["allow-service1"]
   network                = "${var.network_name}"
