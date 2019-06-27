@@ -62,8 +62,8 @@ CMD bash -c '\
         /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
         /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
         gs://${WPT_BUCKET}; \
-        sleep $((60 * 60 * 24)); \
+      sleep $((60 * 60 * 24)); \
     else \
-        sleep $((60 * 5)); \
+      sleep $((60 * 5)); \
     fi; \
   done'
