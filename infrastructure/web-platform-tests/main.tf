@@ -3,11 +3,10 @@ provider "google-beta" {}
 
 module "wpt-servers" {
   # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
-  source                 = "github.com/dcaba/terraform-google-managed-instance-group"
+  source                 = "github.com/dcaba/terraform-google-managed-instance-group?ref=340409c"
   providers {
     google-beta = "google-beta"
   }
-  version                = "1.1.13"
   region                 = "${var.region}"
   zone                   = "${var.zone}"
   name                   = "${var.network_name}-group1"
@@ -28,7 +27,7 @@ module "wpt-servers" {
 
 module "cert-renewers" {
   # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
-  source                 = "github.com/dcaba/terraform-google-managed-instance-group"
+  source                 = "github.com/dcaba/terraform-google-managed-instance-group?ref=340409c"
   providers {
     google-beta = "google-beta"
   }
