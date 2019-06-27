@@ -58,9 +58,11 @@ CMD bash -c '\
       --server https://acme-v02.api.letsencrypt.org/directory; \
     if [ "$?" == "0" ]; then \
       gsutil cp \
-        /etc/letsencrypt/live/web-platform-tests.live/fullchain.pem \
-        /etc/letsencrypt/live/web-platform-tests.live/privkey.pem \
+        /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
+        /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
         gs://${WPT_BUCKET}; \
+        sleep $((60 * 60 * 24)); \
+    else \
+        sleep $((60 * 5)); \
     fi; \
-    sleep $((60 * 60 * 24)); \
   done'
