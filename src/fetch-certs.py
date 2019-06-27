@@ -27,7 +27,7 @@ def get_hash(file_name):
 
     with open(file_name, 'rb') as handle:
         while True:
-            data = handle.read(BUFER_SIZE)
+            data = handle.read(BUFFER_SIZE)
             if not data:
                 break
             md5.update(data)
