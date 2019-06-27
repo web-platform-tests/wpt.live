@@ -49,15 +49,21 @@ def main(bucket_name, period):
                 tmp_dir
             ])
 
-            if get_hash('{}/fullchain.pem'.format(tmp_dir)) != get_hash('/root/fullchain.pem') or (
-                get_hash('{}/privkey.pem'.format(tmp_dir)) != get_hash('/root/privkey.pem')):
+            old_fullchain_hash = old_privkey_hash = None
+
+            try:
+                old_fullchain_hash = get_hash('/root/fullchain.pem')
+                old_privkey_hash = get_hash('/root/privkey.pem')
+            except FileNotFoundError:
+                pass
+
+            if get_hash('{}/fullchain.pem'.format(tmp_dir)) != old_fullchain_hash or (
+                get_hash('{}/privkey.pem'.format(tmp_dir)) != old_privkey_hash):
 
                 loger.debug('New files received. Copying into place.')
 
-                os.remove('/root/fullchain.pem')
                 shutil.move('{}/fullchain.pem'.format(tmp_dir), '/root/fullchain.pem')
 
-                os.remove('/root/privkey.pem')
                 shutil.move('{}/privkey.pem'.format(tmp_dir), '/root/privkey.pem')
 
                 break
