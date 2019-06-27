@@ -61,6 +61,10 @@ CMD bash -c '\
       gsutil cp \
         /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
         /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
+        gs://${WPT_BUCKET}/$(date --rfc-3339 date); \
+      gsutil cp \
+        /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
+        /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
         gs://${WPT_BUCKET}; \
       sleep $((60 * 60 * 24)); \
     else \
