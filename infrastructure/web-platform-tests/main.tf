@@ -43,7 +43,6 @@ module "cert-renewers" {
   service_port_name      = "http"
   ssh_fw_rule            = false
   http_health_check      = false
-  target_pools           = ["${module.cert-renewer-balancer.target_pool}"]
   target_tags            = ["allow-service1"]
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
@@ -60,17 +59,6 @@ module "wpt-server-balancer" {
   name         = "${var.network_name}-wpt"
   service_port = "${module.wpt-servers.service_port}"
   target_tags  = ["${module.wpt-servers.target_tags}"]
-  network      = "${var.network_name}"
-  ip_address   = "${google_compute_address.web-platform-tests-live-address.address}"
-  session_affinity = "CLIENT_IP_PROTO"
-}
-
-module "cert-renewer-balancer" {
-  source       = "../load-balancer"
-  region       = "${var.region}"
-  name         = "${var.network_name}-tls"
-  service_port = "${module.cert-renewers.service_port}"
-  target_tags  = ["${module.cert-renewers.target_tags}"]
   network      = "${var.network_name}"
   ip_address   = "${google_compute_address.web-platform-tests-live-address.address}"
   session_affinity = "CLIENT_IP_PROTO"
