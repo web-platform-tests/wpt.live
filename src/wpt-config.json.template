@@ -1,7 +1,10 @@
 {
   "ports": {
     "http": [80, 8000],
-    "https":[443]
+    "https": [443],
+    "ws": [8001],
+    "wss": [8002],
+    "http2": [8003]
   },
   "bind_address": false,
   "browser_host": "${WPT_HOST}",
