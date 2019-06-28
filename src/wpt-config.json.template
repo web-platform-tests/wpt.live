@@ -11,5 +11,11 @@
   "alternate_hosts": {
     "alt": "${WPT_ALT_HOST}"
   },
-  "check_subdomains": false
+  "check_subdomains": false,
+  "ssl": {
+    "pregenerated": {
+      "host_key_path": "/root/privkey.pem",
+      "host_cert_path": "/root/fullchain.pem"
+    }
+  }
 }

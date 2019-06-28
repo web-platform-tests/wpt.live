@@ -35,6 +35,17 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+# Generate a self-signed TLS certificate so that the WPT server can be started
+# prior to the initial retrieval of the latest legitimate certificate.
+RUN openssl req \
+  -x509 \
+  -nodes \
+  -subj '/CN=example.com' \
+  -days 1 \
+  -newkey rsa:4096 -sha256 \
+  -keyout /root/privkey.pem \
+  -out /root/fullchain.pem
+
 RUN mkdir /root/wpt && \
   cd /root/wpt && \
   git init . && \
