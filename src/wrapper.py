@@ -3,6 +3,7 @@
 import argparse
 import logging
 import queue
+import signal
 import subprocess
 import threading
 
@@ -45,7 +46,6 @@ class Restartable(object):
                     raise Exception('Restartable exited unexpectedly')
 
                 #self._proc.terminate()
-                import signal
                 self._proc.send_signal(signal.SIGINT)
 
                 # Wait for child process to end and allow its thread to end
