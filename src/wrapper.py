@@ -45,7 +45,6 @@ class Restartable(object):
                 if self._proc.poll() is not None:
                     raise Exception('Restartable exited unexpectedly')
 
-                #self._proc.terminate()
                 self._proc.send_signal(signal.SIGINT)
 
                 # Wait for child process to end and allow its thread to end
@@ -129,7 +128,6 @@ def main(leader_cmd, sentinel_cmds):
             except:
                 pass
 
-# foo --sentinel sync-wpt.py --sentinel sync-cert.py -- ./wpt serve
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--sentinel', action='append', dest='sentinel_cmds',
