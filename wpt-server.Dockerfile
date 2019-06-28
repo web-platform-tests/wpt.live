@@ -51,7 +51,7 @@ ENV WPT_HOST=web-platform-tests.live \
 CMD git pull origin master --depth 1 --no-tags && \
   envsubst < ../wpt-config.json.template > ../wpt-config.json && \
   wrapper.py \
-    --sentinel "fetch-certs.py --bucket $WPT_BUCKET --period 3600" \
+    --sentinel "fetch-certs.py --bucket $WPT_BUCKET --outdir /root --period 3600" \
     --sentinel 'fetch-wpt.py --remote origin --branch master --period 60' \
     -- \
       ./wpt serve --config ../wpt-config.json

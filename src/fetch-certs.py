@@ -34,7 +34,7 @@ def get_hash(file_name):
 
     return md5.hexdigest()
 
-def main(bucket_name, period):
+def main(bucket_name, outdir, period):
     logger = setup_logging()
 
     while True:
@@ -52,8 +52,8 @@ def main(bucket_name, period):
             old_fullchain_hash = old_privkey_hash = None
 
             try:
-                old_fullchain_hash = get_hash('/root/fullchain.pem')
-                old_privkey_hash = get_hash('/root/privkey.pem')
+                old_fullchain_hash = get_hash('{}/fullchain.pem'.format(outdir))
+                old_privkey_hash = get_hash('{}/privkey.pem'.format(outdir))
             except FileNotFoundError:
                 pass
 
@@ -62,9 +62,14 @@ def main(bucket_name, period):
 
                 logger.debug('New files received. Copying into place.')
 
-                shutil.move('{}/fullchain.pem'.format(tmp_dir), '/root/fullchain.pem')
-
-                shutil.move('{}/privkey.pem'.format(tmp_dir), '/root/privkey.pem')
+                shutil.move(
+                    '{}/fullchain.pem'.format(tmp_dir),
+                    '{}/fullchain.pem'.format(outdir)
+                )
+                shutil.move(
+                    '{}/privkey.pem'.format(tmp_dir),
+                    '{}/privkey.pem'.format(outdir)
+                )
 
                 break
 
@@ -76,6 +81,7 @@ def main(bucket_name, period):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--bucket', dest='bucket_name', required=True)
+    parser.add_argument('--outdir', required=True)
     parser.add_argument('--period', required=True, type=int)
 
     main(**vars(parser.parse_args()))
