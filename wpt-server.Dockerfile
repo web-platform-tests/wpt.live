@@ -15,6 +15,7 @@ RUN \
     python \
     python-pip \
     python3 \
+    supervisor \
     tzdata
 
 RUN \
@@ -46,12 +47,14 @@ RUN openssl req \
   -keyout /root/privkey.pem \
   -out /root/fullchain.pem
 
+COPY src/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 RUN mkdir /root/wpt && \
   cd /root/wpt && \
   git init . && \
   git remote add origin https://github.com/web-platform-tests/wpt.git
 
-COPY src/fetch-certs.py src/fetch-wpt.py src/wrapper.py /usr/local/bin/
+COPY src/fetch-certs.py src/fetch-wpt.py /usr/local/bin/
 COPY src/wpt-config.json.template /root/wpt-config.json.template
 
 WORKDIR /root/wpt
@@ -59,10 +62,4 @@ ENV WPT_HOST=web-platform-tests.live \
   WPT_ALT_HOST=not-web-platform-tests.live \
   WPT_BUCKET=web-platform-tests-live
 
-CMD git pull origin master --depth 1 --no-tags && \
-  envsubst < ../wpt-config.json.template > ../wpt-config.json && \
-  wrapper.py \
-    --sentinel "fetch-certs.py --bucket $WPT_BUCKET --outdir /root --period 3600" \
-    --sentinel 'fetch-wpt.py --remote origin --branch master --period 60' \
-    -- \
-      ./wpt serve --config ../wpt-config.json
+CMD ["/usr/bin/supervisord"]
