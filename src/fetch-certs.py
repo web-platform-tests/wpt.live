@@ -3,13 +3,13 @@
 import argparse
 import hashlib
 import logging
-import os
 import shutil
 import subprocess
 import tempfile
 import time
 
-BUFFER_SIZE = 64 * 1024 # 64 kilobytes
+BUFFER_SIZE = 64 * 1024  # 64 kilobytes
+
 
 def setup_logging():
     logger = logging.getLogger('fetch-certs')
@@ -22,6 +22,7 @@ def setup_logging():
     logger.setLevel(logging.DEBUG)
     return logger
 
+
 def get_hash(file_name):
     md5 = hashlib.md5()
 
@@ -33,6 +34,7 @@ def get_hash(file_name):
             md5.update(data)
 
     return md5.hexdigest()
+
 
 def main(bucket_name, outdir, period):
     logger = setup_logging()
@@ -49,17 +51,20 @@ def main(bucket_name, outdir, period):
                 tmp_dir
             ])
 
-            old_fullchain_hash = old_privkey_hash = None
-
             try:
-                old_fullchain_hash = get_hash('{}/fullchain.pem'.format(outdir))
-                old_privkey_hash = get_hash('{}/privkey.pem'.format(outdir))
+                old_hashes = [
+                    get_hash('{}/fullchain.pem'.format(outdir)),
+                    get_hash('{}/privkey.pem'.format(outdir))
+                ]
             except FileNotFoundError:
-                pass
+                old_hashes = [None, None]
 
-            if get_hash('{}/fullchain.pem'.format(tmp_dir)) != old_fullchain_hash or (
-                get_hash('{}/privkey.pem'.format(tmp_dir)) != old_privkey_hash):
+            new_hashes = [
+                get_hash('{}/fullchain.pem'.format(tmp_dir)),
+                get_hash('{}/privkey.pem'.format(tmp_dir))
+            ]
 
+            if new_hashes != old_hashes:
                 logger.debug('New files received. Copying into place.')
 
                 shutil.move(
@@ -77,6 +82,7 @@ def main(bucket_name, outdir, period):
         time.sleep(period)
 
     logger.debug('All done')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

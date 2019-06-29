@@ -3,4 +3,4 @@ language: python
 python:
   - 3.5
 script:
-  - ansible-playbook --syntax-check provisioning/provision.yml
+  - make test
