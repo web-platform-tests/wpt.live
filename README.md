@@ -58,4 +58,4 @@ Storage bucket for retrieval by the web-platform-tests servers.
 
 ## Deploying
 
-- [Terraform](https://www.terraform.io/)
+- [Terraform](https://www.terraform.io/) version 0.11.14
