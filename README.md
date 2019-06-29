@@ -51,11 +51,62 @@ Google Cloud Platform's DNS management in order to prove ownership of the
 system's domain name. It stores the certificates in a Google Cloud Platform
 Storage bucket for retrieval by the web-platform-tests servers.
 
+### Server virtualization
+
+Each server described above runs its application code in a Docker container. A
+single container does not provide any benefit in terms of isolation. It does
+add value in two other ways:
+
+1. Ease of deployment. Contributors can build images, run them locally, and
+   publish them for use in the production environment. These operations have
+   been abstracted in the project's `Makefile`.
+2. Error recovery. In production, the containers are executed with the "always"
+   restart policy. This ensures that if a sub-system fails, it is automatically
+   revived from a consistent state.
+
+In the case of the web-platform-tests server, an additional layer of error
+recovery is provided via a Google Cloud Platform "health check." If the Google
+Compute Engine instance fails to respond to HTTP requests, then it will be
+destroyed and a new one created in its place.
+
 ## Contributing
+
+Requirements:
 
 - [Docker](https://www.docker.com/)
 - [GNU Make](https://www.gnu.org/software/make/)
 
+The following commands will build Docker images for the respective sub-systems:
+
+    make cert-renewer
+    make wpt-server
+
+The following commands will build the Docker images and run them on the local
+system:
+
+    make run-cert-renewer
+    make run-wpt-server
+
+Running these containers requires the specification of a number of environment
+variables. See the appropriate `Dockerfile` for a definition of the expected
+variables.
+
 ## Deploying
 
+Requirements:
+
+- [Docker](https://www.docker.com/)
+- [GNU Make](https://www.gnu.org/software/make/)
 - [Terraform](https://www.terraform.io/) version 0.11.14
+
+The following commands will build Docker images for the respective sub-systems
+and upload them to Google Cloud Platform:
+
+    make publish-cert-renewer
+    make publish-wpt-server
+
+The following command will synchronize the infrastructure running in Google
+Cloud Platform with the state described by the configuration files in this
+directory:
+
+    terraform apply
