@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import ConfigParser
@@ -85,10 +85,10 @@ def git(command, *args, **kwargs):
         raise ValueError()
     no_throw = kwargs.get('no_throw', False)
     cmd = ['git', command] + list(args)
-    print >> sys.stderr, cwd, repr(cmd)
+    print(cwd, repr(cmd), file=sys.stderr)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
     stdout, stderr = proc.communicate()
-    print >> sys.stderr, stdout + '\n' + stderr
+    print(stdout + '\n' + stderr, file=sys.stderr)
     if proc.returncode != 0:
         if no_throw:
             return False
@@ -152,7 +152,7 @@ def command(comment):
     for command in commands:
         if comment.startswith('w3c-test:%s' % command):
             return command
-    print >> sys.stderr, 'No command found in comment'
+    print('No command found in comment', file=sys.stderr)
 
 def process_issue_comment(config, data, user_is_authorised):
     comment = data['comment']['body']
@@ -189,10 +189,10 @@ def update_pull_requests(base_path):
 
 def post_authentic(config, body, signature):
     if not signature:
-        print >> sys.stderr, 'Signature missing'
+        print('Signature missing', file=sys.stderr)
         return False
     expected = 'sha1=%s' % hmac.new(config['secret'], body).hexdigest()
-    print >> sys.stderr, 'Signature got %s, expected %s' %(signature, expected)
+    print('Signature got %s, expected %s' % (signature, expected), file=sys.stderr)
     #XXX disable this for now
     return True
     return signature == expected
@@ -219,9 +219,9 @@ def main(request, response):
     try:
         lock.acquire(timeout=120)
         if data:
-            print >> sys.stderr, data
+            print(data, file=sys.stderr)
             if not post_authentic(config, data, request.headers['X-Hub-Signature']):
-                print >> sys.stderr, 'Got message with incorrect signature'
+                print('Got message with incorrect signature', file=sys.stderr)
                 return
             data = json.loads(data)
 
@@ -239,10 +239,10 @@ def main(request, response):
                         break
 
                 if not found:
-                    print >> sys.stderr, 'Unrecognised event type with keys %r' % (data.keys(),)
+                    print('Unrecognised event type with keys %r' % (data.keys(),), file=sys.stderr_
 
     except lockfile.LockTimeout:
-        print >> sys.stderr, 'Lock file detected for payload %s' % request.headers['X-GitHub-Delivery']
+        print('Lock file detected for payload %s' % request.headers['X-GitHub-Delivery'], file=sys.stderr)
         sys.exit(1)
     finally:
         lock.release()
@@ -280,7 +280,7 @@ def register_events(config):
             }
     resp = requests.post('https://api.github.com/repos/%s/%s/hooks' % (config['org_name'], config['repo_name']),
                          data=json.dumps(data), auth=(config['username'], config['password']))
-    print >> sys.stderr, '%i\n%s' % (resp.status_code, resp.text)
+    print('%i\n%s' % (resp.status_code, resp.text), file=sys.stderr)
 
 def get_config():
     config = ConfigParser.RawConfigParser()
