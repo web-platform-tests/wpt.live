@@ -1,6 +1,15 @@
 # https://github.com/hashicorp/terraform/issues/17399
 provider "google-beta" {}
 
+locals {
+  update_policy = [
+    {
+      type = "OPPORTUNISTIC"
+      minimal_action = "REPLACE"
+    }
+  ]
+}
+
 module "wpt-servers" {
   source                 = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=3b94da2"
   providers {
@@ -32,6 +41,7 @@ module "wpt-servers" {
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
   service_account_scopes = ["storage-ro", "logging-write"]
+  update_policy          = "${local.update_policy}"
 }
 
 module "cert-renewers" {
@@ -55,6 +65,7 @@ module "cert-renewers" {
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
   service_account_scopes = ["cloud-platform"]
+  update_policy          = "${local.update_policy}"
 }
 
 resource "google_storage_bucket" "persistance" {
