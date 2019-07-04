@@ -68,6 +68,6 @@ module "cert-renewers" {
   update_policy          = "${local.update_policy}"
 }
 
-resource "google_storage_bucket" "persistance" {
+resource "google_storage_bucket" "persistence" {
   name = "${var.bucket_name}"
 }
