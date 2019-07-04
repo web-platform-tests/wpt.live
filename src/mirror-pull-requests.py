@@ -9,7 +9,6 @@ import os
 import shutil
 import subprocess
 import sys
-from urlparse import urljoin
 
 import requests
 
@@ -164,9 +163,6 @@ def end_mirror(base_path, number, user_is_authorised):
     if PullRequestCheckout.exists(base_path, number):
         PullRequestCheckout.from_number(base_path, number).delete()
 
-        # There's nothing to link back to, so delete the comment doing so
-        delete_issue_comments(number)
-
 
 def sync_mirror(base_path, number, user_is_authorised):
     if PullRequestCheckout.exists(base_path, number):
@@ -237,27 +233,6 @@ def post_authentic(config, body, signature):
     # XXX disable this for now
     return True
     return signature == expected
-
-
-def delete_issue_comments(issue_number):
-    '''Delete all user's comments in the issue containing the magic string.'''
-    user_name = config['username']
-    auth = (user_name, config['password'])
-    issues_url = 'https://api.github.com/repos/%s/%s/issues/' % (
-        config['org_name'], config['repo_name']
-    )
-    issue_comments = requests.get(
-        urljoin(issues_url, '%s/comments' % issue_number), auth=auth
-    ).json()
-
-    # Assuming that some bug or other condition may have caused multiple
-    # comments from this bot, delete them all.
-    for comment in issue_comments:
-        if comment['user']['login'] == user_name and (
-                'These tests are now available' in comment['body']):
-            requests.delete(
-                urljoin(issues_url, 'comments/%s' % comment['id']), auth=auth
-            )
 
 
 def main(request, response):
