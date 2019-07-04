@@ -18,12 +18,12 @@ variable "bucket_name" {
   type = "string"
 }
 
-variable "host_name" {
+variable "host_zone_name" {
   type = "string"
   description = "The primary host to be used by the web-platform-tests server"
 }
 
-variable "alt_host_name" {
+variable "alt_host_zone_name" {
   type        = "string"
   description = "The secondary host to be used by the web-platform-tests server"
 }

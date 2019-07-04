@@ -90,8 +90,8 @@ module "web-platform-tests-live" {
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
   bucket_name                    = "web-platform-tests-live-demo"
-  host_name                      = "${local.host_name}"
-  alt_host_name                  = "${local.alt_host_name}"
+  host_zone_name                 = "web-platform-tests-host"
+  alt_host_zone_name             = "web-platform-tests-alt-host"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 
