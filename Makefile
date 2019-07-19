@@ -3,8 +3,7 @@ PROJECT_ID=wptdashboard
 
 .PHONY: test
 test:
-	flake8 src test
-	pytest
+	flake8 src
 
 .PHONY: cert-renewer wpt-server
 cert-renewer wpt-server:
