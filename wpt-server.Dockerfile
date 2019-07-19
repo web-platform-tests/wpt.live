@@ -66,5 +66,5 @@ CMD ["/usr/bin/supervisord"]
 
 FROM base AS submissions
 
-COPY src/mirror-pull-requests.py /usr/local/bin/
+COPY src/mirror-pull-requests.sh /usr/local/bin/
 COPY src/supervisord-pull-requests.conf /etc/supervisor/conf.d/
