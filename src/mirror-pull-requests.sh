@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Create, update, and delete git worktrees in the `submissions/` subdirectory
+# based on the refs available in the remote repository named "upstream".
+#
+# Specifically, consider refs in the namespaces `prs-open/*` and
+# `prs-labeled-for-preview/*`. For all refs with identical names in both
+# namespaces, ensure that a worktree has been created and checked out to the
+# relevant revision. Remove any previously-created worktrees for which the
+# above condition does not hold.
+
 set -e
 
 git fetch --prune origin "+refs/prs-open/*:refs/prs-open/*"
