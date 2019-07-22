@@ -2,10 +2,8 @@
 
 set -e
 
-remote=origin
-
-git fetch --prune ${remote} "+refs/prs-open/*:refs/prs-open/*"
-git fetch --prune ${remote} "+refs/prs-labeled-for-preview/*:refs/prs-labeled-for-preview/*"
+git fetch --prune origin "+refs/prs-open/*:refs/prs-open/*"
+git fetch --prune origin "+refs/prs-labeled-for-preview/*:refs/prs-labeled-for-preview/*"
 
 open=$(
   git show-ref | grep refs/prs-open/ | cut -f 3 -d / | sort
