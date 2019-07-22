@@ -19,8 +19,10 @@ echo labeled: ${labeled}
 echo active:  ${active}
 
 directories=$(
-  git worktree list --porcelain | grep "worktree $PWD/submissions" | \
-    sed 's/^.*submissions\///g' | sort
+  git worktree list --porcelain | \
+    grep "worktree $PWD/submissions" | \
+    sed 's/^.*submissions\///g' | \
+    sort
 )
 
 to_create=$(comm -23 <(echo "${active}") <(echo "${directories}"))
