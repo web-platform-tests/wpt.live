@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 AS base
+FROM ubuntu:18.04
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -63,8 +63,3 @@ ENV WPT_HOST=web-platform-tests.live \
   WPT_BUCKET=web-platform-tests-live
 
 CMD ["/usr/bin/supervisord"]
-
-FROM base AS submissions
-
-COPY src/mirror-pull-requests.sh /usr/local/bin/
-COPY src/supervisord-pull-requests.conf /etc/supervisor/conf.d/

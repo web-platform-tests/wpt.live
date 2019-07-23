@@ -6,8 +6,8 @@ test:
 	flake8 src test
 	pytest test
 
-.PHONY: cert-renewer wpt-server
-cert-renewer wpt-server:
+.PHONY: cert-renewer wpt-server wpt-server-submissions
+cert-renewer wpt-server wpt-server-submissions:
 	docker build \
 		--tag web-platform-tests-live-$@ \
 		--file $@.Dockerfile \
