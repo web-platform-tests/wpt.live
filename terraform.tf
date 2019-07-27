@@ -23,11 +23,17 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = "false"
 }
 
+
+module "wpt-server-image-identifier" {
+  source = "./infrastructure/docker-image"
+  url = "https://gcr.io/v2/wptdashboard/web-platform-tests-live-wpt-server/tags/list"
+}
+
 module "wpt-server-image" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
   container = {
-    image = "gcr.io/${local.project_name}/web-platform-tests-live-wpt-server"
+    image = "gcr.io/${local.project_name}/web-platform-tests-live-wpt-server@${module.wpt-server-image-identifier.identifier}"
 
     env = [
       {

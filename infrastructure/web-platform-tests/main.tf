@@ -4,8 +4,8 @@ provider "google-beta" {}
 locals {
   update_policy = [
     {
-      type = "OPPORTUNISTIC"
-      minimal_action = "REPLACE"
+      type = "PROACTIVE"
+      minimal_action = "RESTART"
     }
   ]
 }
