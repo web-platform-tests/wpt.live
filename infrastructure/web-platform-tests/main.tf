@@ -11,7 +11,7 @@ locals {
 }
 
 module "wpt-servers" {
-  source                 = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=3b94da2"
+  source                 = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
   providers {
     google-beta = "google-beta"
   }
@@ -42,7 +42,8 @@ module "wpt-servers" {
   service_port_6         = 8003
   service_port_6_name    = "websocket-secure"
   ssh_fw_rule            = false
-  http_health_check      = true
+  https_health_check     = true
+  hc_port                = 443
   target_pools           = ["${google_compute_target_pool.default.self_link}"]
   target_tags            = ["allow-service1"]
   network                = "${var.network_name}"
