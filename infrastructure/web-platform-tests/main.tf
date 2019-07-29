@@ -21,7 +21,14 @@ module "wpt-servers" {
   size                   = 2
   compute_image          = "${var.wpt_server_machine_image}"
   instance_labels        = "${var.wpt_server_instance_labels}"
-  metadata               = "${var.wpt_server_instance_metadata}"
+  # The "google-logging-enabled" metadata is undocumented, but it is apparently
+  # necessary to enable the capture of logs from the Docker image.
+  #
+  # https://github.com/GoogleCloudPlatform/konlet/issues/56
+  metadata               = "${merge(
+    var.wpt_server_instance_metadata,
+    map("google-logging-enabled", "true")
+  )}"
   service_port_1         = 80
   service_port_1_name    = "http-primary"
   service_port_2         = 8000
@@ -56,7 +63,14 @@ module "cert-renewers" {
   size                   = 1
   compute_image          = "${var.cert_renewer_machine_image}"
   instance_labels        = "${var.cert_renewer_instance_labels}"
-  metadata               = "${var.cert_renewer_instance_metadata}"
+  # The "google-logging-enabled" metadata is undocumented, but it is apparently
+  # necessary to enable the capture of logs from the Docker image.
+  #
+  # https://github.com/GoogleCloudPlatform/konlet/issues/56
+  metadata               = "${merge(
+    var.cert_renewer_instance_metadata,
+    map("google-logging-enabled", "true")
+  )}"
   service_port           = 8004
   service_port_name      = "http"
   ssh_fw_rule            = false
