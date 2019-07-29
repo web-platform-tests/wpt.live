@@ -23,7 +23,6 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = "false"
 }
 
-
 module "wpt-server-image-identifier" {
   source = "./infrastructure/docker-image"
   url = "https://gcr.io/v2/wptdashboard/web-platform-tests-live-wpt-server/tags/list"
