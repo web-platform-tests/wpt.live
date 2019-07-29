@@ -19,4 +19,5 @@ with urllib.request.urlopen(sys.argv[1]) as contents:
     if latest['identifier'] is None:
         raise ValueError('No images defined.')
 
-    print(latest['identifier'])
+    latest['time_created'] = str(latest['time_created'])
+    print(json.dumps(latest, indent=2))

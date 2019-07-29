@@ -3,11 +3,9 @@ variable "url" {
 }
 
 output "identifier" {
-  value = "${null_resource.image.id}"
+  value = "${data.external.image.result.identifier}"
 }
 
-resource "null_resource" "image" {
-  provisioner "local-exec" {
-    command = "python3 ${path.module}/latest-image.py ${var.url}"
-  }
+data "external" "image" {
+  program = ["python3", "${path.module}/latest-image.py", "${var.url}"]
 }
