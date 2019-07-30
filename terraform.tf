@@ -93,6 +93,7 @@ module "web-platform-tests-live" {
     google-beta = "google-beta"
   }
 
+  name                           = "web-platform-tests-tot"
   network_name                   = "${google_compute_network.default.name}"
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
   bucket_name                    = "${local.tot_bucket_name}"

@@ -17,7 +17,7 @@ module "wpt-servers" {
   }
   region                 = "${var.region}"
   zone                   = "${var.zone}"
-  name                   = "${var.network_name}-group1"
+  name                   = "${var.name}-wpt-servers"
   size                   = 2
   compute_image          = "${var.wpt_server_machine_image}"
   instance_labels        = "${var.wpt_server_instance_labels}"
@@ -60,7 +60,7 @@ module "cert-renewers" {
   }
   region                 = "${var.region}"
   zone                   = "${var.zone}"
-  name                   = "${var.network_name}-group2"
+  name                   = "${var.name}-cert-renewers"
   size                   = 1
   compute_image          = "${var.cert_renewer_machine_image}"
   instance_labels        = "${var.cert_renewer_instance_labels}"

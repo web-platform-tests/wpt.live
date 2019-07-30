@@ -6,6 +6,10 @@ variable "zone" {
   type = "string"
 }
 
+variable "name" {
+  type = "string"
+}
+
 variable "network_name" {
   type = "string"
 }
