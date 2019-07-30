@@ -2,9 +2,15 @@ HOST=gcr.io
 PROJECT_ID=wptdashboard
 
 .PHONY: test
-test:
+test: test-lint test-unit
+
+.PHONY: test-lint
+test-lint:
 	terraform fmt --check
 	flake8 src test
+
+.PHONY: test-unit
+test-unit:
 	pytest test
 
 .PHONY: cert-renewer wpt-server-tot wpt-server-submissions
