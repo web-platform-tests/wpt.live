@@ -3,6 +3,7 @@ PROJECT_ID=wptdashboard
 
 .PHONY: test
 test:
+	terraform fmt --check
 	flake8 src test
 	pytest test
 
