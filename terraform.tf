@@ -26,14 +26,15 @@ resource "google_compute_network" "default" {
 
 module "wpt-server-tot-image-identifier" {
   source = "./infrastructure/docker-image"
-  url = "https://gcr.io/v2/wptdashboard/web-platform-tests-live-wpt-server-tot/tags/list"
+  registry = "gcr.io"
+  image = "${local.project_name}/web-platform-tests-live-wpt-server-tot"
 }
 
 module "wpt-server-tot-image" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
   container = {
-    image = "gcr.io/${local.project_name}/web-platform-tests-live-wpt-server-tot@${module.wpt-server-tot-image-identifier.identifier}"
+    image = "${module.wpt-server-tot-image-identifier.identifier}"
 
     env = [
       {
