@@ -6,6 +6,9 @@ locals {
     {
       type = "PROACTIVE"
       minimal_action = "RESTART"
+      # > maxUnavailable must be greater than 0 when minimal action is set to
+      # > RESTART
+      max_unavailable_fixed = 1
     }
   ]
 }
