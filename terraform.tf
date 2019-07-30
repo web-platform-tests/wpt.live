@@ -35,6 +35,12 @@ module "wpt-server-tot-image" {
   image    = "${local.project_name}/web-platform-tests-live-wpt-server-tot"
 }
 
+module "wpt-server-submissions-image" {
+  source   = "./infrastructure/docker-image"
+  registry = "gcr.io"
+  image    = "${local.project_name}/web-platform-tests-live-wpt-server-submissions"
+}
+
 module "cert-renewer-image" {
   source   = "./infrastructure/docker-image"
   registry = "gcr.io"
@@ -63,6 +69,32 @@ module "web-platform-tests-live" {
   cert_renewer_image = "${module.cert-renewer-image.identifier}"
 }
 
+module "web-platform-tests-submissions" {
+  source = "./infrastructure/web-platform-tests"
+
+  providers {
+    google-beta = "google-beta"
+  }
+
+  name               = "web-platform-tests-submissions"
+  network_name       = "${google_compute_network.default.name}"
+  subnetwork_name    = "${google_compute_subnetwork.default.name}"
+  bucket_name        = "web-platform-tests-submissions"
+  host_zone_name     = "web-platform-tests-submissions-host"
+  host_name          = "webplatformtests.org"
+  alt_host_zone_name = "web-platform-tests-submissions-alt-host"
+  alt_host_name      = "webplatformtests.com"
+  region             = "${local.region}"
+  zone               = "${local.zone}"
+
+  wpt_server_image   = "${module.wpt-server-submissions-image.identifier}"
+  cert_renewer_image = "${module.cert-renewer-image.identifier}"
+}
+
 output "web-platform-tests-live-address" {
   value = "${module.web-platform-tests-live.address}"
+}
+
+output "web-platform-tests-submissions-address" {
+  value = "${module.web-platform-tests-submissions.address}"
 }
