@@ -1,5 +1,5 @@
 resource "google_compute_address" "web-platform-tests-live-address" {
-  name = "web-platform-tests-live-address"
+  name = "${var.name}-address"
 }
 
 data "google_dns_managed_zone" "host" {
