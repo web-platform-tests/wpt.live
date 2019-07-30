@@ -30,6 +30,12 @@ module "wpt-server-tot-image-identifier" {
   image = "${local.project_name}/web-platform-tests-live-wpt-server-tot"
 }
 
+module "cert-renewer-image-identifier" {
+  source = "./infrastructure/docker-image"
+  registry = "gcr.io"
+  image = "${local.project_name}/web-platform-tests-live-cert-renewer"
+}
+
 module "wpt-server-tot-image" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
@@ -59,7 +65,7 @@ module "cert-renewer-container-tot" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
   container = {
-    image = "gcr.io/${local.project_name}/web-platform-tests-live-cert-renewer"
+    image = "${module.cert-renewer-image-identifier.identifier}"
 
     env = [
       {
