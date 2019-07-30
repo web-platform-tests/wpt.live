@@ -2,9 +2,6 @@ locals {
   region            = "us-central1"
   zone              = "us-central1-b"
   project_name      = "wptdashboard"
-  tot_host_name     = "wheresbob.org"
-  tot_alt_host_name = "thecolbert.report"
-  tot_bucket_name   = "web-platform-tests-tot"
 }
 
 provider "google" {
@@ -54,11 +51,11 @@ module "web-platform-tests-live" {
   name               = "web-platform-tests-tot"
   network_name       = "${google_compute_network.default.name}"
   subnetwork_name    = "${google_compute_subnetwork.default.name}"
-  bucket_name        = "${local.tot_bucket_name}"
+  bucket_name        = "web-platform-tests-tot"
   host_zone_name     = "web-platform-tests-tot-host"
-  host_name          = "${local.tot_host_name}"
+  host_name          = "wheresbob.org"
   alt_host_zone_name = "web-platform-tests-tot-alt-host"
-  alt_host_name      = "${local.tot_alt_host_name}"
+  alt_host_name      = "thecolbert.report"
   region             = "${local.region}"
   zone               = "${local.zone}"
 
