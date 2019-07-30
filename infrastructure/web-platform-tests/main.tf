@@ -13,6 +13,56 @@ locals {
   ]
 }
 
+module "wpt-server-container" {
+  source = "github.com/terraform-google-modules/terraform-google-container-vm"
+
+  container = {
+    image = "${var.wpt_server_image}"
+
+    env = [
+      {
+        name  = "WPT_HOST"
+        value = "${var.host_name}"
+      },
+      {
+        name  = "WPT_ALT_HOST"
+        value = "${var.alt_host_name}"
+      },
+      {
+        name  = "WPT_BUCKET"
+        value = "${var.bucket_name}"
+      }
+    ]
+  }
+
+  restart_policy = "Always"
+}
+
+module "cert-renewer-container" {
+  source = "github.com/terraform-google-modules/terraform-google-container-vm"
+
+  container = {
+    image = "${var.cert_renewer_image}"
+
+    env = [
+      {
+        name  = "WPT_HOST"
+        value = "${var.host_name}"
+      },
+      {
+        name  = "WPT_ALT_HOST"
+        value = "${var.alt_host_name}"
+      },
+      {
+        name  = "WPT_BUCKET"
+        value = "${var.bucket_name}"
+      }
+    ]
+  }
+
+  restart_policy = "Always"
+}
+
 module "wpt-servers" {
   source                 = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
   providers {
@@ -22,16 +72,23 @@ module "wpt-servers" {
   zone                   = "${var.zone}"
   name                   = "${var.name}-wpt-servers"
   size                   = 2
-  compute_image          = "${var.wpt_server_machine_image}"
-  instance_labels        = "${var.wpt_server_instance_labels}"
+  compute_image          = "${module.wpt-server-container.source_image}"
+  instance_labels        = "${map(
+    module.wpt-server-container.vm_container_label_key,
+    module.wpt-server-container.vm_container_label
+  )}"
+
   # The "google-logging-enabled" metadata is undocumented, but it is apparently
   # necessary to enable the capture of logs from the Docker image.
   #
   # https://github.com/GoogleCloudPlatform/konlet/issues/56
-  metadata               = "${merge(
-    var.wpt_server_instance_metadata,
-    map("google-logging-enabled", "true")
+  metadata               = "${map(
+    module.wpt-server-container.metadata_key,
+    module.wpt-server-container.metadata_value,
+    "google-logging-enabled",
+    "true"
   )}"
+
   service_port_1         = 80
   service_port_1_name    = "http-primary"
   service_port_2         = 8000
@@ -65,16 +122,23 @@ module "cert-renewers" {
   zone                   = "${var.zone}"
   name                   = "${var.name}-cert-renewers"
   size                   = 1
-  compute_image          = "${var.cert_renewer_machine_image}"
-  instance_labels        = "${var.cert_renewer_instance_labels}"
+  compute_image          = "${module.cert-renewer-container.source_image}"
+  instance_labels        = "${map(
+    module.cert-renewer-container.vm_container_label_key,
+    module.cert-renewer-container.vm_container_label
+  )}"
+
   # The "google-logging-enabled" metadata is undocumented, but it is apparently
   # necessary to enable the capture of logs from the Docker image.
   #
   # https://github.com/GoogleCloudPlatform/konlet/issues/56
-  metadata               = "${merge(
-    var.cert_renewer_instance_metadata,
-    map("google-logging-enabled", "true")
+  metadata               = "${map(
+    module.cert-renewer-container.metadata_key,
+    module.cert-renewer-container.metadata_value,
+    "google-logging-enabled",
+    "true"
   )}"
+
   service_port           = 8004
   service_port_name      = "http"
   ssh_fw_rule            = false

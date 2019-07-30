@@ -27,31 +27,23 @@ variable "host_zone_name" {
   description = "The primary host to be used by the web-platform-tests server"
 }
 
+variable "host_name" {
+  type = "string"
+}
+
 variable "alt_host_zone_name" {
   type        = "string"
   description = "The secondary host to be used by the web-platform-tests server"
 }
 
-variable "wpt_server_machine_image" {
+variable "alt_host_name" {
   type = "string"
 }
 
-variable "wpt_server_instance_labels" {
-  type = "map"
-}
-
-variable "wpt_server_instance_metadata" {
-  type = "map"
-}
-
-variable "cert_renewer_machine_image" {
+variable "wpt_server_image" {
   type = "string"
 }
 
-variable "cert_renewer_instance_labels" {
-  type = "map"
-}
-
-variable "cert_renewer_instance_metadata" {
-  type = "map"
+variable "cert_renewer_image" {
+  type = "string"
 }

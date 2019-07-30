@@ -44,56 +44,6 @@ module "cert-renewer-image" {
   image = "${local.project_name}/web-platform-tests-live-cert-renewer"
 }
 
-module "wpt-server-container-tot" {
-  source = "github.com/terraform-google-modules/terraform-google-container-vm"
-
-  container = {
-    image = "${module.wpt-server-tot-image.identifier}"
-
-    env = [
-      {
-        name  = "WPT_HOST"
-        value = "${local.tot_host_name}"
-      },
-      {
-        name  = "WPT_ALT_HOST"
-        value = "${local.tot_alt_host_name}"
-      },
-      {
-        name  = "WPT_BUCKET"
-        value = "${local.tot_bucket_name}"
-      }
-    ]
-  }
-
-  restart_policy = "Always"
-}
-
-module "cert-renewer-container-tot" {
-  source = "github.com/terraform-google-modules/terraform-google-container-vm"
-
-  container = {
-    image = "${module.cert-renewer-image.identifier}"
-
-    env = [
-      {
-        name  = "WPT_HOST"
-        value = "${local.tot_host_name}"
-      },
-      {
-        name  = "WPT_ALT_HOST"
-        value = "${local.tot_alt_host_name}"
-      },
-      {
-        name  = "WPT_BUCKET"
-        value = "${local.tot_bucket_name}"
-      }
-    ]
-  }
-
-  restart_policy = "Always"
-}
-
 module "web-platform-tests-live" {
   source                         = "./infrastructure/web-platform-tests"
   providers {
@@ -105,29 +55,14 @@ module "web-platform-tests-live" {
   subnetwork_name                = "${google_compute_subnetwork.default.name}"
   bucket_name                    = "${local.tot_bucket_name}"
   host_zone_name                 = "web-platform-tests-tot-host"
+  host_name                      = "${local.tot_host_name}"
   alt_host_zone_name             = "web-platform-tests-tot-alt-host"
+  alt_host_name                  = "${local.tot_alt_host_name}"
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 
-  wpt_server_machine_image       = "${module.wpt-server-container-tot.source_image}"
-  wpt_server_instance_labels     = "${map(
-    "${module.wpt-server-container-tot.vm_container_label_key}",
-    "${module.wpt-server-container-tot.vm_container_label}"
-  )}"
-  wpt_server_instance_metadata   = "${map(
-    "${module.wpt-server-container-tot.metadata_key}",
-    "${module.wpt-server-container-tot.metadata_value}"
-  )}"
-
-  cert_renewer_machine_image     = "${module.cert-renewer-container-tot.source_image}"
-  cert_renewer_instance_labels   = "${map(
-    "${module.cert-renewer-container-tot.vm_container_label_key}",
-    "${module.cert-renewer-container-tot.vm_container_label}"
-  )}"
-  cert_renewer_instance_metadata = "${map(
-    "${module.cert-renewer-container-tot.metadata_key}",
-    "${module.cert-renewer-container-tot.metadata_value}"
-  )}"
+  wpt_server_image = "${module.wpt-server-tot-image.identifier}"
+  cert_renewer_image = "${module.cert-renewer-image.identifier}"
 }
 
 output "web-platform-tests-live-address" {
