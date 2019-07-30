@@ -4,12 +4,13 @@ provider "google-beta" {}
 locals {
   update_policy = [
     {
-      type = "PROACTIVE"
+      type           = "PROACTIVE"
       minimal_action = "RESTART"
+
       # > maxUnavailable must be greater than 0 when minimal action is set to
       # > RESTART
       max_unavailable_fixed = 1
-    }
+    },
   ]
 }
 
@@ -31,7 +32,7 @@ module "wpt-server-container" {
       {
         name  = "WPT_BUCKET"
         value = "${var.bucket_name}"
-      }
+      },
     ]
   }
 
@@ -56,7 +57,7 @@ module "cert-renewer-container" {
       {
         name  = "WPT_BUCKET"
         value = "${var.bucket_name}"
-      }
+      },
     ]
   }
 
@@ -64,16 +65,19 @@ module "cert-renewer-container" {
 }
 
 module "wpt-servers" {
-  source                 = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
+  source = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
+
   providers {
     google-beta = "google-beta"
   }
-  region                 = "${var.region}"
-  zone                   = "${var.zone}"
-  name                   = "${var.name}-wpt-servers"
-  size                   = 2
-  compute_image          = "${module.wpt-server-container.source_image}"
-  instance_labels        = "${map(
+
+  region        = "${var.region}"
+  zone          = "${var.zone}"
+  name          = "${var.name}-wpt-servers"
+  size          = 2
+  compute_image = "${module.wpt-server-container.source_image}"
+
+  instance_labels = "${map(
     module.wpt-server-container.vm_container_label_key,
     module.wpt-server-container.vm_container_label
   )}"
@@ -82,7 +86,7 @@ module "wpt-servers" {
   # necessary to enable the capture of logs from the Docker image.
   #
   # https://github.com/GoogleCloudPlatform/konlet/issues/56
-  metadata               = "${map(
+  metadata = "${map(
     module.wpt-server-container.metadata_key,
     module.wpt-server-container.metadata_value,
     "google-logging-enabled",
@@ -114,16 +118,19 @@ module "wpt-servers" {
 
 module "cert-renewers" {
   # https://github.com/GoogleCloudPlatform/terraform-google-managed-instance-group/pull/39
-  source                 = "github.com/dcaba/terraform-google-managed-instance-group?ref=340409c"
+  source = "github.com/dcaba/terraform-google-managed-instance-group?ref=340409c"
+
   providers {
     google-beta = "google-beta"
   }
-  region                 = "${var.region}"
-  zone                   = "${var.zone}"
-  name                   = "${var.name}-cert-renewers"
-  size                   = 1
-  compute_image          = "${module.cert-renewer-container.source_image}"
-  instance_labels        = "${map(
+
+  region        = "${var.region}"
+  zone          = "${var.zone}"
+  name          = "${var.name}-cert-renewers"
+  size          = 1
+  compute_image = "${module.cert-renewer-container.source_image}"
+
+  instance_labels = "${map(
     module.cert-renewer-container.vm_container_label_key,
     module.cert-renewer-container.vm_container_label
   )}"
@@ -132,7 +139,7 @@ module "cert-renewers" {
   # necessary to enable the capture of logs from the Docker image.
   #
   # https://github.com/GoogleCloudPlatform/konlet/issues/56
-  metadata               = "${map(
+  metadata = "${map(
     module.cert-renewer-container.metadata_key,
     module.cert-renewer-container.metadata_value,
     "google-logging-enabled",

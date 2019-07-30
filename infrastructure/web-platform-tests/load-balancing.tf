@@ -5,14 +5,15 @@
 #
 # https://github.com/GoogleCloudPlatform/terraform-google-lb
 locals {
-  lb_name        = "${var.name}-load-balancing"
+  lb_name = "${var.name}-load-balancing"
+
   forwarded_ports = [
     "${module.wpt-servers.service_port_1}",
     "${module.wpt-servers.service_port_2}",
     "${module.wpt-servers.service_port_3}",
     "${module.wpt-servers.service_port_4}",
     "${module.wpt-servers.service_port_5}",
-    "${module.wpt-servers.service_port_6}"
+    "${module.wpt-servers.service_port_6}",
   ]
 }
 

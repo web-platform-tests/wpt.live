@@ -23,7 +23,7 @@ variable "bucket_name" {
 }
 
 variable "host_zone_name" {
-  type = "string"
+  type        = "string"
   description = "The primary host to be used by the web-platform-tests server"
 }
 

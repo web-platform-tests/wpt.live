@@ -14,7 +14,9 @@ data "external" "image" {
   program = [
     "python3",
     "${path.module}/latest-image.py",
-    "--registry", "${var.registry}",
-    "--image", "${var.image}"
+    "--registry",
+    "${var.registry}",
+    "--image",
+    "${var.image}",
   ]
 }
