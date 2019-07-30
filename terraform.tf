@@ -24,23 +24,23 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = "false"
 }
 
-module "wpt-server-tot-image-identifier" {
+module "wpt-server-tot-image" {
   source = "./infrastructure/docker-image"
   registry = "gcr.io"
   image = "${local.project_name}/web-platform-tests-live-wpt-server-tot"
 }
 
-module "cert-renewer-image-identifier" {
+module "cert-renewer-image" {
   source = "./infrastructure/docker-image"
   registry = "gcr.io"
   image = "${local.project_name}/web-platform-tests-live-cert-renewer"
 }
 
-module "wpt-server-tot-image" {
+module "wpt-server-container-tot" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
   container = {
-    image = "${module.wpt-server-tot-image-identifier.identifier}"
+    image = "${module.wpt-server-tot-image.identifier}"
 
     env = [
       {
@@ -65,7 +65,7 @@ module "cert-renewer-container-tot" {
   source = "github.com/terraform-google-modules/terraform-google-container-vm"
 
   container = {
-    image = "${module.cert-renewer-image-identifier.identifier}"
+    image = "${module.cert-renewer-image.identifier}"
 
     env = [
       {
@@ -109,14 +109,14 @@ module "web-platform-tests-live" {
   region                         = "${local.region}"
   zone                           = "${local.zone}"
 
-  wpt_server_machine_image       = "${module.wpt-server-tot-image.source_image}"
+  wpt_server_machine_image       = "${module.wpt-server-container-tot.source_image}"
   wpt_server_instance_labels     = "${map(
-    "${module.wpt-server-tot-image.vm_container_label_key}",
-    "${module.wpt-server-tot-image.vm_container_label}"
+    "${module.wpt-server-container-tot.vm_container_label_key}",
+    "${module.wpt-server-container-tot.vm_container_label}"
   )}"
   wpt_server_instance_metadata   = "${map(
-    "${module.wpt-server-tot-image.metadata_key}",
-    "${module.wpt-server-tot-image.metadata_value}"
+    "${module.wpt-server-container-tot.metadata_key}",
+    "${module.wpt-server-container-tot.metadata_value}"
   )}"
 
   cert_renewer_machine_image     = "${module.cert-renewer-container-tot.source_image}"
