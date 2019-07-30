@@ -24,6 +24,14 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = "false"
 }
 
+resource "google_compute_subnetwork" "default" {
+  name                     = "web-platform-tests-live-subnetwork"
+  ip_cidr_range            = "10.127.0.0/20"
+  network                  = "${google_compute_network.default.self_link}"
+  region                   = "${local.region}"
+  private_ip_google_access = true
+}
+
 module "wpt-server-tot-image" {
   source = "./infrastructure/docker-image"
   registry = "gcr.io"
@@ -84,14 +92,6 @@ module "cert-renewer-container-tot" {
   }
 
   restart_policy = "Always"
-}
-
-resource "google_compute_subnetwork" "default" {
-  name                     = "web-platform-tests-live-subnetwork"
-  ip_cidr_range            = "10.127.0.0/20"
-  network                  = "${google_compute_network.default.self_link}"
-  region                   = "${local.region}"
-  private_ip_google_access = true
 }
 
 module "web-platform-tests-live" {
