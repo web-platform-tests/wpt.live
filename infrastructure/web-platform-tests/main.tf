@@ -109,7 +109,7 @@ module "wpt-servers" {
   https_health_check     = true
   hc_port                = 443
   target_pools           = ["${google_compute_target_pool.default.self_link}"]
-  target_tags            = ["allow-service1"]
+  target_tags            = ["${var.name}-allow"]
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
   service_account_scopes = ["storage-ro", "logging-write"]
@@ -150,7 +150,7 @@ module "cert-renewers" {
   service_port_name      = "http"
   ssh_fw_rule            = false
   http_health_check      = false
-  target_tags            = ["allow-service1"]
+  target_tags            = ["${var.name}-allow"]
   network                = "${var.network_name}"
   subnetwork             = "${var.subnetwork_name}"
   service_account_scopes = ["cloud-platform"]
