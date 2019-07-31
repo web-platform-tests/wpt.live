@@ -55,7 +55,6 @@ CMD bash -c '\
       --agree-tos \
       --non-interactive \
       --email infrastructure@bocoup.com \
-      --test-cert \
       --server https://acme-v02.api.letsencrypt.org/directory; \
     if [ "$?" == "0" ]; then \
       gsutil cp \
