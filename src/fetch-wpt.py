@@ -6,6 +6,9 @@ import subprocess
 import time
 
 
+local_fetch_ref = 'refs/latest-fetch-wpt'
+
+
 def setup_logging():
     logger = logging.getLogger('sync-wpt')
     handler = logging.StreamHandler()
@@ -24,13 +27,19 @@ def main(remote, branch, period):
     while True:
         logger.debug('Fetching latest revision.')
 
-        subprocess.check_call(['git', 'fetch', remote, branch])
+        # Concurrent processes may fetch from this repository at any time,
+        # making the general-purpose `FETCH_HEAD` reference unstable. Store the
+        # result of this operation in a dedicated reference to guard against
+        # such instabilities.
+        subprocess.check_call([
+            'git', 'fetch', remote, '{}:{}'.format(branch, local_fetch_ref)
+        ])
 
         current = subprocess.check_output([
             'git', 'rev-parse', 'HEAD'
         ]).strip()
         fetched = subprocess.check_output([
-            'git', 'rev-parse', 'FETCH_HEAD'
+            'git', 'rev-parse', local_fetch_ref
         ]).strip()
 
         logger.debug('current:%s', current)
