@@ -77,6 +77,12 @@ module "wpt-servers" {
   size          = 2
   compute_image = "${module.wpt-server-container.source_image}"
 
+  # The default "f1-micro" instance was found to be underpowered for running
+  # WPT and synchronizing submissions as of 2019-07-31 [1].
+  #
+  # [1] WPT commit 91e90a3a5fbd8161c3c4d9637466c23895752db9
+  machine_type = "g1-small"
+
   instance_labels = "${map(
     module.wpt-server-container.vm_container_label_key,
     module.wpt-server-container.vm_container_label
