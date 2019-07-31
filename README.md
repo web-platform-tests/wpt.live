@@ -51,6 +51,12 @@ Google Cloud Platform's DNS management in order to prove ownership of the
 system's domain name. It stores the certificates in a Google Cloud Platform
 Storage bucket for retrieval by the web-platform-tests servers.
 
+The functionality described to this point is provided by the "tot" (or
+"tip-of-tree") server. This project also includes a "submissions" server, which
+offers the same functionality and also automatically publishes the contents of
+some patches submitted to [the web-platform-tests project hosted on
+GitHub.com](https://github.com/web-platform-tests/wpt).
+
 ### Server virtualization
 
 Each server described above runs its application code in a Docker container. A
@@ -79,13 +85,15 @@ Requirements:
 The following commands will build Docker images for the respective sub-systems:
 
     make cert-renewer
-    make wpt-server
+    make wpt-server-tot
+    make wpt-server-submissions
 
 The following commands will build the Docker images and run them on the local
 system:
 
     make run-cert-renewer
-    make run-wpt-server
+    make run-wpt-server-tot
+    make run-wpt-server-submissions
 
 Running these containers requires the specification of a number of environment
 variables. See the appropriate `Dockerfile` for a definition of the expected
@@ -98,12 +106,16 @@ Requirements:
 - [Docker](https://www.docker.com/)
 - [GNU Make](https://www.gnu.org/software/make/)
 - [Terraform](https://www.terraform.io/) version 0.11.14
+- [Python 3](https://python.org)
+- access credentials to the Google Cloud Platform project, saved to a file named
+  `google-cloud-platform-credentials.json` in the root pf this repository
 
 The following commands will build Docker images for the respective sub-systems
 and upload them to Google Cloud Platform:
 
     make publish-cert-renewer
-    make publish-wpt-server
+    make publish-wpt-server-tot
+    make publish-wpt-server-submissions
 
 The following command will synchronize the infrastructure running in Google
 Cloud Platform with the state described by the configuration files in this

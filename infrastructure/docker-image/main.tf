@@ -1,9 +1,11 @@
 variable "registry" {
-  type = "string"
+  description = "Host name of the Docker registry from which the image identifier should be retirieved"
+  type        = "string"
 }
 
 variable "image" {
-  type = "string"
+  description = "Name of the Docker image whose identifier should be retrieved"
+  type        = "string"
 }
 
 output "identifier" {
