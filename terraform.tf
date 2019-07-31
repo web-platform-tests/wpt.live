@@ -1,7 +1,7 @@
 locals {
-  region            = "us-central1"
-  zone              = "us-central1-b"
-  project_name      = "wptdashboard"
+  region       = "us-central1"
+  zone         = "us-central1-b"
+  project_name = "wptdashboard"
 }
 
 provider "google" {
