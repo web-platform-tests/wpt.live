@@ -108,6 +108,9 @@ module "wpt-servers" {
   ssh_fw_rule            = false
   https_health_check     = true
   hc_port                = 443
+  hc_interval            = 10
+  hc_healthy_threshold   = 3
+  hc_unhealthy_threshold = 6
   target_pools           = ["${google_compute_target_pool.default.self_link}"]
   target_tags            = ["${var.name}-allow"]
   network                = "${var.network_name}"
