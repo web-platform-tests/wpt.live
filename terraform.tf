@@ -59,9 +59,9 @@ module "web-platform-tests-live" {
   subnetwork_name    = "${google_compute_subnetwork.default.name}"
   bucket_name        = "web-platform-tests-tot"
   host_zone_name     = "web-platform-tests-tot-host"
-  host_name          = "wheresbob.org"
+  host_name          = "web-platform-tests.live"
   alt_host_zone_name = "web-platform-tests-tot-alt-host"
-  alt_host_name      = "thecolbert.report"
+  alt_host_name      = "not-web-platform-tests.live"
   region             = "${local.region}"
   zone               = "${local.zone}"
 
