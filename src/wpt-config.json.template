@@ -1,0 +1,21 @@
+{
+  "ports": {
+    "http": [80, 8000],
+    "https": [443],
+    "ws": [8001],
+    "wss": [8002],
+    "http2": [8003]
+  },
+  "bind_address": false,
+  "browser_host": "${WPT_HOST}",
+  "alternate_hosts": {
+    "alt": "${WPT_ALT_HOST}"
+  },
+  "check_subdomains": false,
+  "ssl": {
+    "pregenerated": {
+      "host_key_path": "/root/privkey.pem",
+      "host_cert_path": "/root/fullchain.pem"
+    }
+  }
+}
