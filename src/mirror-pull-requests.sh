@@ -9,7 +9,7 @@
 # relevant revision. Remove any previously-created worktrees for which the
 # above condition does not hold.
 
-set -e
+set -euo pipefail
 
 git fetch --prune origin "+refs/prs-open/*:refs/prs-open/*"
 git fetch --prune origin "+refs/prs-labeled-for-preview/*:refs/prs-labeled-for-preview/*"
@@ -25,9 +25,12 @@ echo open:    ${open}
 echo labeled: ${labeled}
 echo active:  ${active}
 
+# The following pipeline tolerates the exit status of "1" from grep since it
+# indicates that no match was found, and that is not an exceptional case in
+# this context.
 directories=$(
   git worktree list --porcelain | \
-    grep "worktree $PWD/submissions" | \
+    (grep "worktree ${PWD}/submissions" || test $? = '1') | \
     sed 's/^.*submissions\///g' | \
     sort
 )
