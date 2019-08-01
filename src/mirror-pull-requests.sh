@@ -41,7 +41,7 @@ echo to create: ${to_create}
 echo to delete: ${to_delete}
 
 for name in ${to_create}; do
-  git worktree add ${tag} submissions/${name}
+  git worktree add submissions/${name} refs/prs-open/${name}
 done
 
 for name in ${to_update}; do
