@@ -1,10 +1,10 @@
 # [web-platform-tests.live](http://web-platform-tests.live)
 
-A live version of [wpt](https://github.com/web-platform-tests/wpt)
-
-This repo contains a deployment automation for running a live instance of the
-web platform tests project that people can visit and run file by file in their
-favorite web browser.
+This repository contains scripts for deploying [the web-platform-tests project
+(WPT)](https://github.com/web-platform-tests/wpt) to the web such that its
+tests can be run in a web browser. The deployment has been designed for
+stability and for relevancy (by automatically synchronizing with the latest
+revision of WPT and submissions from contributors).
 
 ## Overview
 
@@ -28,11 +28,12 @@ Cloud Platform.
     *   * external      |   | GCE           +   + object     [   ] message
           service       '---' instance      +++++ store            contents
 
-The server is run by multiple Google Compute Engine instances deployed in
-parallel. These are members of a Managed Instance Group, so when one fails, it
-is automatically destroyed, and a new instance is created in its place. Many of
-the web-platform-tests concern the semantics of the HTTP protocol, so load
-balancing is provided at the TCP level in order to avoid interference.
+The server is run by multiple Google Compute Engine (or "GCE") instances
+deployed in parallel. These are members of a Managed Instance Group, so when
+one fails, it is automatically destroyed, and a new instance is created in its
+place. Many of the web-platform-tests concern the semantics of the HTTP
+protocol, so load balancing is provided at the TCP level in order to avoid
+interference.
 
 In addition to serving the web-platform-tests, each server performs a few tasks
 on a regular interval. These include:
@@ -60,8 +61,8 @@ GitHub.com](https://github.com/web-platform-tests/wpt).
 ### Server virtualization
 
 Each server described above runs its application code in a Docker container. A
-single container does not provide any benefit in terms of isolation. It does
-add value in two other ways:
+single container does not provide any benefit in terms of isolation, but it
+does add value in two other ways:
 
 1. Ease of deployment. Contributors can build images, run them locally, and
    publish them for use in the production environment. These operations have
@@ -70,10 +71,40 @@ add value in two other ways:
    restart policy. This ensures that if a sub-system fails, it is automatically
    revived from a consistent state.
 
+Moreover, this project contradicts common practice of Docker-based development
+in that it runs multiple processes in a single container (managed by
+[Supervisord](http://supervisord.org/)). This further simplifies development
+and deployment because containers can be developed, deployed, and run in
+isolation (i.e. without tools like [Docker
+Compose](https://docs.docker.com/compose/) or
+[Kubernetes](https://kubernetes.io/)).
+
 In the case of the web-platform-tests server, an additional layer of error
 recovery is provided via a Google Cloud Platform "health check." If the Google
 Compute Engine instance fails to respond to HTTP requests, then it will be
 destroyed and a new one created in its place.
+
+### Submissions preview
+
+This project defines a second deployment of the WPT server which publishes the
+content of patches submitted to [the web-platform-tests repository on
+GitHub.com](https://github.com/web-platform-tests/wpt) (also known as "pull
+requests"). This second deployment has a similar structure to the first, and it
+includes additional scripting to automatically fetch and publish the content of
+submissions.
+
+Submissions are identified by the automation infrastructure maintained in the
+WPT project. That infrastructure communicates the name and content of the
+submissions using specialized git "refs," and this project determines what must
+be published by polling the git repository for the refs on a regular interval.
+
+The following flow diagram illustrates how submissions travel from the WPT
+contributor to the deployed "submissions" instance of this project.
+
+    Contributor
+        `--[pull request]--> GitHub.com                       .--------web-platform-tests.live
+                                `--[GitHub Action]--> git repository          ^
+                                                              `---------------'
 
 ## Contributing
 
@@ -117,8 +148,12 @@ and upload them to Google Cloud Platform:
     make publish-wpt-server-tot
     make publish-wpt-server-submissions
 
+Publishing new images will not directly affect the deployed system. In order to
+deploy new images, the GCP managed instance groups must be updated using
+Terraform.
+
 The following command will synchronize the infrastructure running in Google
 Cloud Platform with the state described by the configuration files in this
-directory:
+repository:
 
     terraform apply
