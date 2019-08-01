@@ -47,3 +47,8 @@ variable "wpt_server_image" {
 variable "cert_renewer_image" {
   type = "string"
 }
+
+variable "wpt_server_disk_size" {
+  description = "The size of the disk in gigabytes. If not specified, it will inherit the size of its base image."
+  default     = 0
+}

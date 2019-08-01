@@ -123,6 +123,7 @@ module "wpt-servers" {
   subnetwork             = "${var.subnetwork_name}"
   service_account_scopes = ["storage-ro", "logging-write"]
   update_policy          = "${local.update_policy}"
+  disk_size_gb           = "${var.wpt_server_disk_size}"
 }
 
 module "cert-renewers" {

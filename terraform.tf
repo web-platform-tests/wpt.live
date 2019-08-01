@@ -87,8 +87,9 @@ module "web-platform-tests-submissions" {
   region             = "${local.region}"
   zone               = "${local.zone}"
 
-  wpt_server_image   = "${module.wpt-server-submissions-image.identifier}"
-  cert_renewer_image = "${module.cert-renewer-image.identifier}"
+  wpt_server_image     = "${module.wpt-server-submissions-image.identifier}"
+  wpt_server_disk_size = 100
+  cert_renewer_image   = "${module.cert-renewer-image.identifier}"
 }
 
 output "web-platform-tests-live-address" {
