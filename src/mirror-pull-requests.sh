@@ -21,9 +21,10 @@ labeled=$(
   git show-ref | grep refs/prs-labeled-for-preview/ | cut -f 3 -d / | sort
 )
 active=$(comm -12 <(echo "${open}") <(echo "${labeled}"))
-echo open:    ${open}
-echo labeled: ${labeled}
-echo active:  ${active}
+
+echo open:    $(echo "${open}" | wc --lines)
+echo labeled: $(echo "${labeled}" | wc --lines)
+echo active:  $(echo "${active}" | wc --lines)
 
 # The following pipeline tolerates the exit status of "1" from grep since it
 # indicates that no match was found, and that is not an exceptional case in
