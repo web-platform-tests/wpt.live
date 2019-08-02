@@ -31,7 +31,7 @@ module "wpt-server-container" {
       },
       {
         name  = "WPT_BUCKET"
-        value = "${var.bucket_name}"
+        value = "${var.name}"
       },
     ]
   }
@@ -56,7 +56,7 @@ module "cert-renewer-container" {
       },
       {
         name  = "WPT_BUCKET"
-        value = "${var.bucket_name}"
+        value = "${var.name}"
       },
     ]
   }
@@ -168,5 +168,5 @@ module "cert-renewers" {
 }
 
 resource "google_storage_bucket" "persistence" {
-  name = "${var.bucket_name}"
+  name = "${var.name}"
 }
