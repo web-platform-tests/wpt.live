@@ -34,6 +34,8 @@ ENV WPT_HOST=web-platform-tests.live \
   WPT_ALT_HOST=not.web-platform-tests.live \
   WPT_BUCKET=web-platform-tests-live
 
+COPY src/cert-store.sh /usr/local/bin/
+
 # > If you would like to obtain a wildcard certificate from Let’s Encrypt’s
 # > ACMEv2 server, you’ll need to include
 # >
@@ -44,6 +46,7 @@ ENV WPT_HOST=web-platform-tests.live \
 # https://certbot.eff.org/docs/install.html?highlight=wildcard
 
 CMD bash -c '\
+  cert-store.sh fetch ${WPT_BUCKET} ${WPT_HOST}; \
   while true; do \
     certbot certonly \
       -d ${WPT_HOST} \
@@ -57,14 +60,7 @@ CMD bash -c '\
       --email infrastructure@bocoup.com \
       --server https://acme-v02.api.letsencrypt.org/directory; \
     if [ "$?" == "0" ]; then \
-      gsutil cp \
-        /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
-        /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
-        gs://${WPT_BUCKET}/$(date --rfc-3339 date); \
-      gsutil cp \
-        /etc/letsencrypt/live/${WPT_HOST}/fullchain.pem \
-        /etc/letsencrypt/live/${WPT_HOST}/privkey.pem \
-        gs://${WPT_BUCKET}; \
+      cert-store.sh save ${WPT_BUCKET} ${WPT_HOST}; \
       sleep $((60 * 60 * 24)); \
     else \
       sleep $((60 * 5)); \
