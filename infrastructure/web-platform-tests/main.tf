@@ -2,6 +2,8 @@
 provider "google-beta" {}
 
 locals {
+  bucket_name = "${var.name}-certificates"
+
   update_policy = [
     {
       type           = "PROACTIVE"
@@ -31,7 +33,7 @@ module "wpt-server-container" {
       },
       {
         name  = "WPT_BUCKET"
-        value = "${var.name}"
+        value = "${local.bucket_name}"
       },
     ]
   }
@@ -56,7 +58,7 @@ module "cert-renewer-container" {
       },
       {
         name  = "WPT_BUCKET"
-        value = "${var.name}"
+        value = "${local.bucket_name}"
       },
     ]
   }
@@ -168,5 +170,5 @@ module "cert-renewers" {
 }
 
 resource "google_storage_bucket" "certificates" {
-  name = "${var.name}"
+  name = "${local.bucket_name}"
 }
