@@ -41,11 +41,13 @@ variable "alt_host_name" {
 }
 
 variable "wpt_server_image" {
-  type = "string"
+  type        = "string"
+  description = "The address of a Docker image that runs the web-platform-tests server"
 }
 
 variable "cert_renewer_image" {
-  type = "string"
+  type        = "string"
+  description = "The address of of a Docker image that renews TLS certificates for the system"
 }
 
 variable "wpt_server_disk_size" {
