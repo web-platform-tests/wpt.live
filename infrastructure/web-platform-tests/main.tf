@@ -167,6 +167,6 @@ module "cert-renewers" {
   update_policy          = "${local.update_policy}"
 }
 
-resource "google_storage_bucket" "persistence" {
+resource "google_storage_bucket" "certificates" {
   name = "${var.name}"
 }
