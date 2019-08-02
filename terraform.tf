@@ -85,9 +85,13 @@ module "web-platform-tests-submissions" {
   region             = "${local.region}"
   zone               = "${local.zone}"
 
-  wpt_server_image     = "${module.wpt-server-submissions-image.identifier}"
+  wpt_server_image   = "${module.wpt-server-submissions-image.identifier}"
+  cert_renewer_image = "${module.cert-renewer-image.identifier}"
+
+  # The "submissions" deployment requires significantly more disk space because
+  # it creates a new git working directory of the WPT repository for every
+  # qualifying submission.
   wpt_server_disk_size = 100
-  cert_renewer_image   = "${module.cert-renewer-image.identifier}"
 }
 
 output "web-platform-tests-live-address" {
