@@ -58,11 +58,7 @@ CMD bash -c '\
       --agree-tos \
       --non-interactive \
       --email infrastructure@bocoup.com \
-      --server https://acme-v02.api.letsencrypt.org/directory; \
-    if [ "$?" == "0" ]; then \
-      cert-store.sh save ${WPT_BUCKET} ${WPT_HOST}; \
-      sleep $((60 * 60 * 24)); \
-    else \
-      sleep $((60 * 5)); \
-    fi; \
+      --server https://acme-v02.api.letsencrypt.org/directory \
+      --deploy-hook "cert-store.sh save ${WPT_BUCKET} ${WPT_HOST}"; \
+    sleep $((60 * 60 * 24)); \
   done'
