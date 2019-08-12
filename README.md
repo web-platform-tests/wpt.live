@@ -73,11 +73,12 @@ does add value in two other ways:
 
 Moreover, this project contradicts common practice of Docker-based development
 in that it runs multiple processes in a single container (managed by
-[Supervisord](http://supervisord.org/)). This further simplifies development
-and deployment because containers can be developed, deployed, and run in
-isolation (i.e. without tools like [Docker
+[Supervisord](http://supervisord.org/)). This further simplifies deployment
+because [Google Compute Engine instances can be configured to run Docker
+containers](https://cloud.google.com/compute/docs/containers/deploying-containers),
+avoiding the complexity introduced by orchestration tools like [Docker
 Compose](https://docs.docker.com/compose/) or
-[Kubernetes](https://kubernetes.io/)).
+[Kubernetes](https://kubernetes.io/).
 
 In the case of the web-platform-tests server, an additional layer of error
 recovery is provided via a Google Cloud Platform "health check." If the Google
