@@ -101,10 +101,19 @@ be published by polling the git repository for the refs on a regular interval.
 The following flow diagram illustrates how submissions travel from the WPT
 contributor to the deployed "submissions" instance of this project.
 
-    Contributor
-        `--[pull request]--> GitHub.com                       .--------web-platform-tests.live
-                                `--[GitHub Action]--> git repository          ^
-                                                              `---------------'
+    Contributor           GitHub.com    git repository     web-platform-tests.live
+        |                     |               |                     |
+        |                     |               .------[git fetch]----'
+        |                     |               '---------------------.
+        '---[pull request]---.|               |                     |
+                              v               |                     |
+                              '--[git tag]---.|                     |
+                                              v                     |
+                                              |                     |
+                                              .------[git fetch]----'
+                                              '---------------------.
+                                                                    V
+                                        (fetching continues on a regular interval)
 
 ## Contributing
 
