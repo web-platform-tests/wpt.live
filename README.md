@@ -80,10 +80,42 @@ avoiding the complexity introduced by orchestration tools like [Docker
 Compose](https://docs.docker.com/compose/) or
 [Kubernetes](https://kubernetes.io/).
 
+If the WPT server fails (as indicated by its process exiting), then Docker as
+running in the Google Compute Engine Instance will automatically restart the
+Docker container.
+
+    container    GCE Instance
+       |             |
+       x             |
+                    err!
+       .---restart---'
+       |             |
+       |            okay
+
+Restarting the container completely refreshes runtime state, and this is
+expected to resolve many potential problems in the deployment.
+
 In the case of the web-platform-tests server, an additional layer of error
 recovery is provided via a Google Cloud Platform "health check." If the Google
 Compute Engine instance fails to respond to HTTP requests, then it will be
-destroyed and a new one created in its place.
+destroyed and a new one created in its place. That new instance will
+subsequently create a Docker container to run the WPT server.
+
+    container    GCE Instance    GCE Managed Group
+       |             |                 |
+       x             x                 |
+                                      err!
+                     .-----restart-----'
+                     |                 |
+       .---restart---'                 |
+       |             |                 |
+       |            okay               |
+       |             |                 |
+       |             |                okay
+
+This second recovery mechanism guards against more persistent problems, e.g.
+those stemming from state on disk (since even a running GCE instance will fail
+HTTP health checks if restarting the Docker container has no effect).
 
 ### Submissions preview
 
