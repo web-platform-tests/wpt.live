@@ -13,16 +13,16 @@ consistent experience, this project uses a non-trivial server layout in Google
 Cloud Platform.
 
 
-    *Let's Encrypt*                                     *GitHub*
-          |                                                 |
-    [TLS certificate]                                [WPT source code]
-          |                                .------------.   |
-          V                             .->| wpt server |<--+
-    .--------------.   +++++++++++++++  |  '------------'   |
-    | cert-renewer |-->+ certificate +--+                   |
-    '--------------'   +    store    +  |  .------------.   |
-                       +++++++++++++++  '->| wpt server |<--'
-                                           '------------'
+    *Let's Encrypt*                                         *GitHub*
+          |                                                     |
+    [TLS certificate]                                   [WPT source code]
+          |                                   .------------.    |
+          V                               .-->| wpt server |<---+
+    .--------------.    +++++++++++++++   |   '------------'    |
+    | cert-renewer |--->+ certificate +---+                     |
+    '--------------'    +    store    +   |   .------------.    |
+                        +++++++++++++++   '-->| wpt server |<---'
+                                              '------------'
     Legend
                         .---.               +++++
     *   * external      |   | GCE           +   + object     [   ] message
