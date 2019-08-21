@@ -221,3 +221,35 @@ def test_prune_closed_branches(repos):
         'submissions/gh-11', 'submissions/gh-33', 'submissions/gh-55'
     ))
     assert expected == set(repos.local.worktrees())
+
+
+def test_prune_closed_branches_corrupt_worktree(repos):
+    refs = [
+        'refs/prs-open/gh-11',
+        'refs/prs-labeled-for-preview/gh-11',
+        'refs/prs-open/gh-23',
+        'refs/prs-labeled-for-preview/gh-23',
+    ]
+    for ref in refs:
+        repos.remote.update_ref(ref, 'HEAD')
+        repos.local.update_ref(ref, 'HEAD')
+    repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-11', 'HEAD'])
+
+    # Simulate a worktree whose initial creation was interrupted
+    repos.local.cmd([
+        'git', 'worktree', 'lock', '--reason', 'initializing',
+        'submissions/gh-11'
+    ])
+    extra_file_path = os.path.join(
+        repos.local.cwd, 'submissions', 'gh-11', 'extra-file'
+    )
+    with open(extra_file_path, 'w') as handle:
+        handle.write('this file is not under version control')
+
+    # Simulate closing pull requests
+    repos.remote.delete_ref('refs/prs-open/gh-11')
+
+    subprocess.check_call(subject, cwd=repos.local.cwd)
+
+    expected = set(('submissions/gh-23',))
+    assert expected == set(repos.local.worktrees())

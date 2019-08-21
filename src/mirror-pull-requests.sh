@@ -45,7 +45,12 @@ echo to update: ${to_update}
 echo to create: ${to_create}
 
 for name in ${to_delete}; do
-  git worktree remove submissions/${name}
+  # The worktree may be locked if the `add` command which created it was
+  # interrupted (e.g. due to reaching disk capacity). Unlock the worktree
+  # (tolerating failure in cases where the worktree is not locked), and remove
+  # with the `--force` flag to handle cases where the worktree is dirty.
+  git worktree unlock submissions/${name} || true
+  git worktree remove --force submissions/${name}
 done
 
 for name in ${to_update}; do
