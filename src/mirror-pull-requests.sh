@@ -36,24 +36,24 @@ directories=$(
     sort
 )
 
-to_create=$(comm -23 <(echo "${active}") <(echo "${directories}"))
-to_update=$(comm -12 <(echo "${active}") <(echo "${directories}"))
 to_delete=$(comm -13 <(echo "${active}") <(echo "${directories}"))
+to_update=$(comm -12 <(echo "${active}") <(echo "${directories}"))
+to_create=$(comm -23 <(echo "${active}") <(echo "${directories}"))
 
+echo to delete: ${to_delete}
 echo to update: ${to_update}
 echo to create: ${to_create}
-echo to delete: ${to_delete}
 
-for name in ${to_create}; do
-  git worktree add submissions/${name} refs/prs-open/${name}
+for name in ${to_delete}; do
+  git worktree remove submissions/${name}
 done
 
 for name in ${to_update}; do
   (cd submissions/${name} && git checkout refs/prs-open/${name})
 done
 
-for name in ${to_delete}; do
-  git worktree remove submissions/${name}
+for name in ${to_create}; do
+  git worktree add submissions/${name} refs/prs-open/${name}
 done
 
 git worktree prune
