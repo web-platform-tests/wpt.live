@@ -58,8 +58,8 @@ COPY src/fetch-certs.py src/fetch-wpt.py /usr/local/bin/
 COPY src/wpt-config.json.template /root/wpt-config.json.template
 
 WORKDIR /root/wpt
-ENV WPT_HOST=web-platform-tests.live \
-  WPT_ALT_HOST=not-web-platform-tests.live \
-  WPT_BUCKET=web-platform-tests-live
+ENV WPT_HOST=wpt.live \
+  WPT_ALT_HOST=not-wpt.live \
+  WPT_BUCKET=wpt-live
 
 CMD ["/usr/bin/supervisord"]
