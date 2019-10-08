@@ -38,7 +38,9 @@ resource "google_compute_target_pool" "default" {
 
 resource "google_compute_http_health_check" "default" {
   name         = "${local.lb_name}-health-check"
-  request_path = "/"
+  # A query parameter is used to distinguish the health check in the server's
+  # request logs.
+  request_path = "/?gcp-health-check-load-balancing"
   port         = "${module.wpt-servers.service_port_1}"
 }
 

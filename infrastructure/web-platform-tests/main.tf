@@ -115,6 +115,9 @@ module "wpt-servers" {
   service_port_6_name    = "websocket-secure"
   ssh_fw_rule            = false
   https_health_check     = true
+  # A query parameter is used to distinguish the health check in the server's
+  # request logs.
+  hc_path                = "/?gcp-health-check"
   hc_port                = 443
   hc_interval            = 10
   hc_healthy_threshold   = 3
