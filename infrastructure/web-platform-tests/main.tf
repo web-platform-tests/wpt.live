@@ -101,23 +101,25 @@ module "wpt-servers" {
     "true"
   )}"
 
-  service_port_1         = 80
-  service_port_1_name    = "http-primary"
-  service_port_2         = 8000
-  service_port_2_name    = "http-secondary"
-  service_port_3         = 443
-  service_port_3_name    = "https"
-  service_port_4         = 8001
-  service_port_4_name    = "http2"
-  service_port_5         = 8002
-  service_port_5_name    = "websocket"
-  service_port_6         = 8003
-  service_port_6_name    = "websocket-secure"
-  ssh_fw_rule            = false
-  https_health_check     = true
+  service_port_1      = 80
+  service_port_1_name = "http-primary"
+  service_port_2      = 8000
+  service_port_2_name = "http-secondary"
+  service_port_3      = 443
+  service_port_3_name = "https"
+  service_port_4      = 8001
+  service_port_4_name = "http2"
+  service_port_5      = 8002
+  service_port_5_name = "websocket"
+  service_port_6      = 8003
+  service_port_6_name = "websocket-secure"
+  ssh_fw_rule         = false
+  https_health_check  = true
+
   # A query parameter is used to distinguish the health check in the server's
   # request logs.
-  hc_path                = "/?gcp-health-check"
+  hc_path = "/?gcp-health-check"
+
   hc_port                = 443
   hc_interval            = 10
   hc_healthy_threshold   = 3
