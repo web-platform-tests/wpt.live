@@ -30,9 +30,9 @@ RUN git clone https://github.com/certbot/certbot --branch v0.35.1 && \
   cd certbot-dns-google && \
   python3 setup.py install
 
-ENV WPT_HOST=wpt.live \
-  WPT_ALT_HOST=not-wpt.live \
-  WPT_BUCKET=wpt-live
+ENV WPT_HOST=web-platform-tests.live \
+  WPT_ALT_HOST=not.web-platform-tests.live \
+  WPT_BUCKET=web-platform-tests-live
 
 COPY src/cert-store.sh /usr/local/bin/
 

@@ -1,4 +1,4 @@
-# [wpt.live](http://wpt.live)
+# [web-platform-tests.live](http://web-platform-tests.live)
 
 This repository contains scripts for deploying [the web-platform-tests project
 (WPT)](https://github.com/web-platform-tests/wpt) to the web such that its
@@ -134,7 +134,7 @@ be published by polling the git repository for the refs on a regular interval.
 The following flow diagram illustrates how submissions travel from the WPT
 contributor to the deployed "submissions" instance of this project.
 
-    Contributor           GitHub.com    git repository           wpt.live
+    Contributor           GitHub.com    git repository     web-platform-tests.live
         |                     |               |                     |
         |                     |               .------[git fetch]----'
         |                     |               '---------------------.

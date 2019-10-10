@@ -1,5 +1,5 @@
 HOST=gcr.io
-PROJECT_ID=wptserve
+PROJECT_ID=wptdashboard
 
 .PHONY: test
 test: test-lint test-unit
@@ -16,7 +16,7 @@ test-unit:
 .PHONY: cert-renewer wpt-server-tot wpt-server-submissions
 cert-renewer wpt-server-tot wpt-server-submissions:
 	docker build \
-		--tag wpt-live-$@ \
+		--tag web-platform-tests-live-$@ \
 		--file $@.Dockerfile \
 		.
 
@@ -31,7 +31,7 @@ run-%: %
 		--env WPT_HOST \
 		--env WPT_ALT_HOST \
 		--env WPT_BUCKET \
-		wpt-live-$*
+		web-platform-tests-live-$*
 
 google-cloud-platform-credentials.json:
 	@echo To publish images, the file $@ must be present in the root of >&2
@@ -44,5 +44,6 @@ login: google-cloud-platform-credentials.json
 		docker login -u _json_key --password-stdin $(HOST)
 
 publish-%: % login
-	docker tag wpt-live-$* $(HOST)/$(PROJECT_ID)/wpt-live-$*
-	docker push $(HOST)/$(PROJECT_ID)/wpt-live-$*
+	docker tag web-platform-tests-live-$* \
+		$(HOST)/$(PROJECT_ID)/web-platform-tests-live-$*
+	docker push $(HOST)/$(PROJECT_ID)/web-platform-tests-live-$*
