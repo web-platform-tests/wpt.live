@@ -1,7 +1,7 @@
 locals {
   region       = "us-central1"
   zone         = "us-central1-b"
-  project_name = "wptdashboard"
+  project_name = "wpt-live"
 }
 
 provider "google" {
@@ -17,12 +17,12 @@ provider "google-beta" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "web-platform-tests-live-network"
+  name                    = "wpt-live-network"
   auto_create_subnetworks = "false"
 }
 
 resource "google_compute_subnetwork" "default" {
-  name                     = "web-platform-tests-live-subnetwork"
+  name                     = "wpt-live-subnetwork"
   ip_cidr_range            = "10.127.0.0/20"
   network                  = "${google_compute_network.default.self_link}"
   region                   = "${local.region}"
@@ -32,35 +32,35 @@ resource "google_compute_subnetwork" "default" {
 module "wpt-server-tot-image" {
   source   = "./infrastructure/docker-image"
   registry = "gcr.io"
-  image    = "${local.project_name}/web-platform-tests-live-wpt-server-tot"
+  image    = "${local.project_name}/wpt-live-wpt-server-tot"
 }
 
 module "wpt-server-submissions-image" {
   source   = "./infrastructure/docker-image"
   registry = "gcr.io"
-  image    = "${local.project_name}/web-platform-tests-live-wpt-server-submissions"
+  image    = "${local.project_name}/wpt-live-wpt-server-submissions"
 }
 
 module "cert-renewer-image" {
   source   = "./infrastructure/docker-image"
   registry = "gcr.io"
-  image    = "${local.project_name}/web-platform-tests-live-cert-renewer"
+  image    = "${local.project_name}/wpt-live-cert-renewer"
 }
 
-module "web-platform-tests-live" {
+module "wpt-live" {
   source = "./infrastructure/web-platform-tests"
 
   providers {
     google-beta = "google-beta"
   }
 
-  name               = "web-platform-tests-tot"
+  name               = "wpt-tot"
   network_name       = "${google_compute_network.default.name}"
   subnetwork_name    = "${google_compute_subnetwork.default.name}"
-  host_zone_name     = "web-platform-tests-tot-host"
-  host_name          = "web-platform-tests.live"
-  alt_host_zone_name = "web-platform-tests-tot-alt-host"
-  alt_host_name      = "not-web-platform-tests.live"
+  host_zone_name     = "wpt-live"
+  host_name          = "wpt.live"
+  alt_host_zone_name = "not-wpt-live"
+  alt_host_name      = "not-wpt.live"
   region             = "${local.region}"
   zone               = "${local.zone}"
 
@@ -68,20 +68,20 @@ module "web-platform-tests-live" {
   cert_renewer_image = "${module.cert-renewer-image.identifier}"
 }
 
-module "web-platform-tests-submissions" {
+module "wpt-submissions" {
   source = "./infrastructure/web-platform-tests"
 
   providers {
     google-beta = "google-beta"
   }
 
-  name               = "web-platform-tests-submissions"
+  name               = "wpt-submissions"
   network_name       = "${google_compute_network.default.name}"
   subnetwork_name    = "${google_compute_subnetwork.default.name}"
-  host_zone_name     = "web-platform-tests-submissions-host"
-  host_name          = "webplatformtests.org"
-  alt_host_zone_name = "web-platform-tests-submissions-alt-host"
-  alt_host_name      = "webplatformtests.com"
+  host_zone_name     = "wptpr-live"
+  host_name          = "wptpr.live"
+  alt_host_zone_name = "not-wptpr-live"
+  alt_host_name      = "not-wptpr.live"
   region             = "${local.region}"
   zone               = "${local.zone}"
 
@@ -94,10 +94,10 @@ module "web-platform-tests-submissions" {
   wpt_server_disk_size = 100
 }
 
-output "web-platform-tests-live-address" {
-  value = "${module.web-platform-tests-live.address}"
+output "wpt-live-address" {
+  value = "${module.wpt-live.address}"
 }
 
-output "web-platform-tests-submissions-address" {
-  value = "${module.web-platform-tests-submissions.address}"
+output "wpt-submissions-address" {
+  value = "${module.wpt-submissions.address}"
 }
