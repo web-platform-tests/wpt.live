@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Create, update, and delete git worktrees in the `submissions/` subdirectory
-# based on the refs available in the remote repository named "upstream".
+# Create, update, and delete git worktrees based on the refs available in the
+# remote repository named "upstream".
 #
 # Specifically, consider refs in the namespaces `prs-open/*` and
 # `prs-trusted-for-preview/*`. For all refs with identical names in both
@@ -46,8 +46,8 @@ echo active:  $(echo "${active}" | wc --lines)
 
 directories=$(
   git worktree list --porcelain | \
-    grep_tolerate_none "worktree ${PWD}/submissions" | \
-    sed 's/^.*submissions\///g' | \
+    grep_tolerate_none -E "worktree ${PWD}/[0-9]" | \
+    sed "s%^worktree ${PWD}/%%g" | \
     sort
 )
 
@@ -64,17 +64,17 @@ for name in ${to_delete}; do
   # interrupted (e.g. due to reaching disk capacity). Unlock the worktree
   # (tolerating failure in cases where the worktree is not locked), and remove
   # with the `--force` flag to handle cases where the worktree is dirty.
-  git worktree unlock submissions/${name} 2> /dev/null || \
-    echo Worktree \'submissions/${name}\' is not locked
-  git worktree remove --force submissions/${name}
+  git worktree unlock ${name} 2> /dev/null || \
+    echo Worktree \'${name}\' is not locked
+  git worktree remove --force ${name}
 done
 
 for name in ${to_update}; do
-  (cd submissions/${name} && git checkout refs/prs-open/${name})
+  (cd ${name} && git checkout refs/prs-open/${name})
 done
 
 for name in ${to_create}; do
-  git worktree add submissions/${name} refs/prs-open/${name}
+  git worktree add ${name} refs/prs-open/${name}
 done
 
 git worktree prune
