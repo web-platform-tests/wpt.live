@@ -65,18 +65,18 @@ def test_okay(repos):
         'refs/prs-open/gh-2',
         'refs/prs-open/gh-3',
         'refs/prs-open/gh-4',
-        'refs/prs-labeled-for-preview/gh-2',
-        'refs/prs-labeled-for-preview/gh-3',
-        'refs/prs-labeled-for-preview/gh-4',
-        'refs/prs-labeled-for-preview/gh-5'
+        'refs/prs-trusted-for-preview/gh-2',
+        'refs/prs-trusted-for-preview/gh-3',
+        'refs/prs-trusted-for-preview/gh-4',
+        'refs/prs-trusted-for-preview/gh-5'
     ]
     for ref in remote_refs:
         repos.remote.cmd(['git', 'update-ref', ref, 'HEAD'])
     local_refs = [
         'refs/prs-open/gh-2',
         'refs/prs-open/gh-6',
-        'refs/prs-labeled-for-preview/gh-2',
-        'refs/prs-labeled-for-preview/gh-6'
+        'refs/prs-trusted-for-preview/gh-2',
+        'refs/prs-trusted-for-preview/gh-6'
     ]
     for ref in local_refs:
         repos.local.cmd(['git', 'update-ref', ref, 'HEAD'])
@@ -95,14 +95,14 @@ def test_okay(repos):
 def test_create(repos):
     repos.remote.update_ref('refs/prs-open/gh-100', 'HEAD')
     repos.remote.update_ref('refs/prs-open/gh-101', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-100', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-101', 'HEAD')
-    # Opened but not labeled:
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-100', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-101', 'HEAD')
+    # Opened but not trusted:
     repos.remote.update_ref('refs/prs-open/gh-200', 'HEAD')
     repos.remote.update_ref('refs/prs-open/gh-201', 'HEAD')
-    # Labeled but not open:
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-300', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-301', 'HEAD')
+    # Trusted but not open:
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-300', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-301', 'HEAD')
 
     subprocess.check_call(subject, cwd=repos.local.cwd)
 
@@ -117,10 +117,10 @@ def test_update(repos):
     repos.local.update_ref('refs/prs-open/gh-101', 'HEAD')
     repos.local.update_ref('refs/prs-open/gh-200', 'HEAD')
     repos.local.update_ref('refs/prs-open/gh-201', 'HEAD')
-    repos.local.update_ref('refs/prs-labeled-for-preview/gh-100', 'HEAD')
-    repos.local.update_ref('refs/prs-labeled-for-preview/gh-101', 'HEAD')
-    repos.local.update_ref('refs/prs-labeled-for-preview/gh-200', 'HEAD')
-    repos.local.update_ref('refs/prs-labeled-for-preview/gh-201', 'HEAD')
+    repos.local.update_ref('refs/prs-trusted-for-preview/gh-100', 'HEAD')
+    repos.local.update_ref('refs/prs-trusted-for-preview/gh-101', 'HEAD')
+    repos.local.update_ref('refs/prs-trusted-for-preview/gh-200', 'HEAD')
+    repos.local.update_ref('refs/prs-trusted-for-preview/gh-201', 'HEAD')
     repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-100', 'HEAD'])
     repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-101', 'HEAD'])
     repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-200', 'HEAD'])
@@ -128,14 +128,14 @@ def test_update(repos):
 
     repos.remote.update_ref('refs/prs-open/gh-100', 'HEAD')
     repos.remote.update_ref('refs/prs-open/gh-101', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-100', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-101', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-100', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-101', 'HEAD')
 
     repos.remote.cmd(['git', 'commit', '--allow-empty', '--message', 'second'])
     repos.remote.update_ref('refs/prs-open/gh-200', 'HEAD')
     repos.remote.update_ref('refs/prs-open/gh-201', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-200', 'HEAD')
-    repos.remote.update_ref('refs/prs-labeled-for-preview/gh-201', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-200', 'HEAD')
+    repos.remote.update_ref('refs/prs-trusted-for-preview/gh-201', 'HEAD')
 
     old_revision = repos.remote.cmd(['git', 'rev-parse', 'HEAD~'])
     new_revision = repos.remote.cmd(['git', 'rev-parse', 'HEAD'])
@@ -162,11 +162,11 @@ def test_prune_removed_labels(repos):
         'refs/prs-open/gh-33',
         'refs/prs-open/gh-45',
         'refs/prs-open/gh-55',
-        'refs/prs-labeled-for-preview/gh-11',
-        'refs/prs-labeled-for-preview/gh-23',
-        'refs/prs-labeled-for-preview/gh-33',
-        'refs/prs-labeled-for-preview/gh-45',
-        'refs/prs-labeled-for-preview/gh-55'
+        'refs/prs-trusted-for-preview/gh-11',
+        'refs/prs-trusted-for-preview/gh-23',
+        'refs/prs-trusted-for-preview/gh-33',
+        'refs/prs-trusted-for-preview/gh-45',
+        'refs/prs-trusted-for-preview/gh-55'
     ]
     for ref in refs:
         repos.remote.update_ref(ref, 'HEAD')
@@ -178,8 +178,8 @@ def test_prune_removed_labels(repos):
     repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-55', 'HEAD'])
 
     # Simulate removing labels
-    repos.remote.delete_ref('refs/prs-labeled-for-preview/gh-23')
-    repos.remote.delete_ref('refs/prs-labeled-for-preview/gh-45')
+    repos.remote.delete_ref('refs/prs-trusted-for-preview/gh-23')
+    repos.remote.delete_ref('refs/prs-trusted-for-preview/gh-45')
 
     subprocess.check_call(subject, cwd=repos.local.cwd)
 
@@ -192,15 +192,15 @@ def test_prune_removed_labels(repos):
 def test_prune_closed_branches(repos):
     refs = [
         'refs/prs-open/gh-11',
-        'refs/prs-labeled-for-preview/gh-11',
+        'refs/prs-trusted-for-preview/gh-11',
         'refs/prs-open/gh-23',
-        'refs/prs-labeled-for-preview/gh-23',
+        'refs/prs-trusted-for-preview/gh-23',
         'refs/prs-open/gh-33',
-        'refs/prs-labeled-for-preview/gh-33',
+        'refs/prs-trusted-for-preview/gh-33',
         'refs/prs-open/gh-45',
-        'refs/prs-labeled-for-preview/gh-45',
+        'refs/prs-trusted-for-preview/gh-45',
         'refs/prs-open/gh-55',
-        'refs/prs-labeled-for-preview/gh-55'
+        'refs/prs-trusted-for-preview/gh-55'
     ]
     for ref in refs:
         repos.remote.update_ref(ref, 'HEAD')
@@ -226,9 +226,9 @@ def test_prune_closed_branches(repos):
 def test_prune_closed_branches_corrupt_worktree(repos):
     refs = [
         'refs/prs-open/gh-11',
-        'refs/prs-labeled-for-preview/gh-11',
+        'refs/prs-trusted-for-preview/gh-11',
         'refs/prs-open/gh-23',
-        'refs/prs-labeled-for-preview/gh-23',
+        'refs/prs-trusted-for-preview/gh-23',
     ]
     for ref in refs:
         repos.remote.update_ref(ref, 'HEAD')

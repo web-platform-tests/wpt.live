@@ -4,7 +4,7 @@
 # based on the refs available in the remote repository named "upstream".
 #
 # Specifically, consider refs in the namespaces `prs-open/*` and
-# `prs-labeled-for-preview/*`. For all refs with identical names in both
+# `prs-trusted-for-preview/*`. For all refs with identical names in both
 # namespaces, ensure that a worktree has been created and checked out to the
 # relevant revision. Remove any previously-created worktrees for which the
 # above condition does not hold.
@@ -12,18 +12,18 @@
 set -euo pipefail
 
 git fetch --prune origin "+refs/prs-open/*:refs/prs-open/*"
-git fetch --prune origin "+refs/prs-labeled-for-preview/*:refs/prs-labeled-for-preview/*"
+git fetch --prune origin "+refs/prs-trusted-for-preview/*:refs/prs-trusted-for-preview/*"
 
 open=$(
   git show-ref | grep refs/prs-open/ | cut -f 3 -d / | sort
 )
-labeled=$(
-  git show-ref | grep refs/prs-labeled-for-preview/ | cut -f 3 -d / | sort
+trusted=$(
+  git show-ref | grep refs/prs-trusted-for-preview/ | cut -f 3 -d / | sort
 )
-active=$(comm -12 <(echo "${open}") <(echo "${labeled}"))
+active=$(comm -12 <(echo "${open}") <(echo "${trusted}"))
 
 echo open:    $(echo "${open}" | wc --lines)
-echo labeled: $(echo "${labeled}" | wc --lines)
+echo trusted: $(echo "${trusted}" | wc --lines)
 echo active:  $(echo "${active}" | wc --lines)
 
 # The following pipeline tolerates the exit status of "1" from grep since it
