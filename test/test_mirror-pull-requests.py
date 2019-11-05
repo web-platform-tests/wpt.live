@@ -253,3 +253,14 @@ def test_prune_closed_branches_corrupt_worktree(repos):
 
     expected = set(('submissions/gh-23',))
     assert expected == set(repos.local.worktrees())
+
+
+def test_nothing_trusted(repos):
+    ref = 'refs/prs-open/gh-11'
+    repos.remote.update_ref(ref, 'HEAD')
+    repos.local.update_ref(ref, 'HEAD')
+    repos.local.cmd(['git', 'worktree', 'add', 'submissions/gh-11', 'HEAD'])
+
+    subprocess.check_call(subject, cwd=repos.local.cwd)
+
+    assert [] == list(repos.local.worktrees())

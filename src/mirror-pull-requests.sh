@@ -11,14 +11,32 @@
 
 set -euo pipefail
 
+# GNU "grep" typically reports the absence of a match with a non-zero exit
+# status. From the GNU/Linux manual page, grep(1):
+#
+# > Normally the exit status is 0 if a line is selected, 1 if no lines were
+# > selected, and 2 if an error occurred.
+#
+# However, in the context of this script, such a result is not exceptional and
+# should not cause failure (e.g. when there are currently no pull requests
+# which have been trusted for preview). The following function tolerates the
+# condition without masking errors.
+function grep_tolerate_none {
+  grep "$@" || test $? = '1'
+}
+
 git fetch --prune origin "+refs/prs-open/*:refs/prs-open/*"
 git fetch --prune origin "+refs/prs-trusted-for-preview/*:refs/prs-trusted-for-preview/*"
 
 open=$(
-  git show-ref | grep refs/prs-open/ | cut -f 3 -d / | sort
+  git show-ref | grep_tolerate_none refs/prs-open/ | \
+    cut -f 3 -d / | \
+    sort
 )
 trusted=$(
-  git show-ref | grep refs/prs-trusted-for-preview/ | cut -f 3 -d / | sort
+  git show-ref | grep_tolerate_none refs/prs-trusted-for-preview/ | \
+    cut -f 3 -d / | \
+    sort
 )
 active=$(comm -12 <(echo "${open}") <(echo "${trusted}"))
 
@@ -26,12 +44,9 @@ echo open:    $(echo "${open}" | wc --lines)
 echo trusted: $(echo "${trusted}" | wc --lines)
 echo active:  $(echo "${active}" | wc --lines)
 
-# The following pipeline tolerates the exit status of "1" from grep since it
-# indicates that no match was found, and that is not an exceptional case in
-# this context.
 directories=$(
   git worktree list --porcelain | \
-    (grep "worktree ${PWD}/submissions" || test $? = '1') | \
+    grep_tolerate_none "worktree ${PWD}/submissions" | \
     sed 's/^.*submissions\///g' | \
     sort
 )
