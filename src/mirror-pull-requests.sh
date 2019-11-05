@@ -64,7 +64,8 @@ for name in ${to_delete}; do
   # interrupted (e.g. due to reaching disk capacity). Unlock the worktree
   # (tolerating failure in cases where the worktree is not locked), and remove
   # with the `--force` flag to handle cases where the worktree is dirty.
-  git worktree unlock submissions/${name} || true
+  git worktree unlock submissions/${name} 2> /dev/null || \
+    echo Worktree \'submissions/${name}\' is not locked
   git worktree remove --force submissions/${name}
 done
 
