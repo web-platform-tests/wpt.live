@@ -79,11 +79,12 @@ module "wpt-servers" {
   size          = 2
   compute_image = "${module.wpt-server-container.source_image}"
 
-  # The default "f1-micro" instance was found to be underpowered for running
-  # WPT and synchronizing submissions as of 2019-07-31 [1].
+  # As of 2020-06-17, we were running into OOM issues with the 1.7 GB
+  # "g1-small" instance[1]. This was suspected to be due to 'git gc' needing
+  # more memory, so we upgraded to "e2-medium" (4 GB of RAM).
   #
-  # [1] WPT commit 91e90a3a5fbd8161c3c4d9637466c23895752db9
-  machine_type = "g1-small"
+  # [1] https://github.com/web-platform-tests/wpt.live/issues/30
+  machine_type = "e2-medium"
 
   instance_labels = "${map(
     module.wpt-server-container.vm_container_label_key,
