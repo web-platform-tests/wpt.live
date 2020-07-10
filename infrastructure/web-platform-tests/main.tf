@@ -67,7 +67,7 @@ module "cert-renewer-container" {
 }
 
 module "wpt-servers" {
-  source = "github.com/ecosystem-infra/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
+  source = "github.com/ecosystem-infra/terraform-google-multi-port-managed-instance-group?ref=a40a3b9f3"
 
   providers {
     google-beta = "google-beta"
@@ -114,6 +114,8 @@ module "wpt-servers" {
   service_port_5_name = "websocket"
   service_port_6      = 8003
   service_port_6_name = "websocket-secure"
+  service_port_7      = 8443
+  service_port_7_name = "https-secondary"
   ssh_fw_rule         = false
   https_health_check  = true
 
