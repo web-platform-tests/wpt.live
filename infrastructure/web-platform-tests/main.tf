@@ -67,7 +67,7 @@ module "cert-renewer-container" {
 }
 
 module "wpt-servers" {
-  source = "github.com/bocoup/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
+  source = "github.com/ecosystem-infra/terraform-google-multi-port-managed-instance-group?ref=c87b27fa7"
 
   providers {
     google-beta = "google-beta"
