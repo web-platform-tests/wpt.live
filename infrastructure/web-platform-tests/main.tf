@@ -116,7 +116,7 @@ module "wpt-servers" {
   service_port_6_name = "websocket-secure"
   service_port_7      = 8443
   service_port_7_name = "https-secondary"
-  ssh_fw_rule         = false
+  ssh_fw_rule         = true
   https_health_check  = true
 
   # A query parameter is used to distinguish the health check in the server's
