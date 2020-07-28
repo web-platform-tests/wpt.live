@@ -91,7 +91,7 @@ module "wpt-submissions" {
   # The "submissions" deployment requires significantly more disk space because
   # it creates a new git working directory of the WPT repository for every
   # qualifying submission.
-  wpt_server_disk_size = 200
+  wpt_server_disk_size = 100
 }
 
 output "wpt-live-address" {
