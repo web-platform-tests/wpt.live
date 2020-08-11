@@ -14,6 +14,7 @@ locals {
     "${module.wpt-servers.service_port_4}",
     "${module.wpt-servers.service_port_5}",
     "${module.wpt-servers.service_port_6}",
+    "${module.wpt-servers.service_port_7}",
   ]
 }
 
