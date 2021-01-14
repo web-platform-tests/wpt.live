@@ -15,6 +15,7 @@ RUN \
     python \
     python-pip \
     python3 \
+    python3-pip \
     supervisor \
     tzdata
 
