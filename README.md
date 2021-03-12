@@ -4,7 +4,7 @@ This repository contains scripts for deploying [the web-platform-tests project
 (WPT)](https://github.com/web-platform-tests/wpt) to the web such that its
 tests can be run in a web browser. The deployment has been designed for
 stability and for relevancy (by automatically synchronizing with the latest
-revision of WPT and submissions from contributors).
+revision of WPT).
 
 ## Overview
 
@@ -51,12 +51,6 @@ service to retrieve TLS certificates for the WPT servers. It integrates with
 Google Cloud Platform's DNS management in order to prove ownership of the
 system's domain name. It stores the certificates in a Google Cloud Platform
 Storage bucket for retrieval by the web-platform-tests servers.
-
-The functionality described to this point is provided by the "tot" (or
-"tip-of-tree") server. This project also includes a "submissions" server, which
-offers the same functionality and also automatically publishes the contents of
-some patches submitted to [the web-platform-tests project hosted on
-GitHub.com](https://github.com/web-platform-tests/wpt).
 
 ### Server virtualization
 
@@ -117,37 +111,6 @@ This second recovery mechanism guards against more persistent problems, e.g.
 those stemming from state on disk (since even a running GCE instance will fail
 HTTP health checks if restarting the Docker container has no effect).
 
-### Submissions preview
-
-This project defines a second deployment of the WPT server which publishes the
-content of patches submitted to [the web-platform-tests repository on
-GitHub.com](https://github.com/web-platform-tests/wpt) (also known as "pull
-requests"). This second deployment has a similar structure to the first, and it
-includes additional scripting to automatically fetch and publish the content of
-submissions.
-
-Submissions are identified by the automation infrastructure maintained in the
-WPT project. That infrastructure communicates the name and content of the
-submissions using specialized git "refs," and this project determines what must
-be published by polling the git repository for the refs on a regular interval.
-
-The following flow diagram illustrates how submissions travel from the WPT
-contributor to the deployed "submissions" instance of this project.
-
-    Contributor           GitHub.com    git repository           wpt.live
-        |                     |               |                     |
-        |                     |               .------[git fetch]----'
-        |                     |               '---------------------.
-        '---[pull request]---.|               |                     |
-                              v               |                     |
-                              '--[git tag]---.|                     |
-                                              v                     |
-                                              |                     |
-                                              .------[git fetch]----'
-                                              '---------------------.
-                                                                    V
-                                        (fetching continues on a regular interval)
-
 ## Contributing
 
 Requirements:
@@ -159,14 +122,12 @@ The following commands will build Docker images for the respective sub-systems:
 
     make cert-renewer
     make wpt-server-tot
-    make wpt-server-submissions
 
 The following commands will build the Docker images and run them on the local
 system:
 
     make run-cert-renewer
     make run-wpt-server-tot
-    make run-wpt-server-submissions
 
 Running these containers requires the specification of a number of environment
 variables. See the appropriate `Dockerfile` for a definition of the expected
@@ -188,7 +149,6 @@ and upload them to Google Cloud Platform:
 
     make publish-cert-renewer
     make publish-wpt-server-tot
-    make publish-wpt-server-submissions
 
 Publishing new images will not directly affect the deployed system. In order to
 deploy new images, the GCP managed instance groups must be updated using
