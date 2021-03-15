@@ -13,4 +13,3 @@ script:
 matrix:
   include:
     - env: TARGET=test-lint
-    - env: TARGET=test-unit
