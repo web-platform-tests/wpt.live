@@ -15,9 +15,9 @@ jobs:
       with:
         python-version: '3.6'
     - name: Install Python dependencies
-      run: pip install -r requirements.txt
+      run: pip install pipenv && pipenv install --dev
     - name: flake8
-      run: flake8 src test
+      run: pipenv run flake8
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
       with:
