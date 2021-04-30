@@ -1,14 +1,6 @@
 HOST=gcr.io
 PROJECT_ID=wpt-live
 
-.PHONY: test
-test: test-lint
-
-.PHONY: test-lint
-test-lint:
-	terraform fmt --check
-	flake8 src test
-
 .PHONY: cert-renewer wpt-server-tot
 cert-renewer wpt-server-tot:
 	docker build \

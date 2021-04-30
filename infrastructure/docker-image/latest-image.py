@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import sys
 import urllib.request
 
 
@@ -14,9 +13,10 @@ def main(registry, image):
     }
 
     with urllib.request.urlopen(url) as contents:
-        for identifier, metadata in json.load(contents).get('manifest').items():
+        manifest = json.load(contents).get('manifest')
+        for identifier, metadata in manifest.items():
             time_created = int(metadata.get('timeCreatedMs'))
-            if  time_created > latest['time_created']:
+            if time_created > latest['time_created']:
                 latest['identifier'] = identifier
                 latest['time_created'] = time_created
 

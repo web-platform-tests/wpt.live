@@ -133,6 +133,20 @@ Running these containers requires the specification of a number of environment
 variables. See the appropriate `Dockerfile` for a definition of the expected
 variables.
 
+## Linting
+
+Requirements:
+
+- [Python 3](https://python.org)
+- [Pipenv](https://pipenv.pypa.io/)
+- [Terraform](https://www.terraform.io/) version 0.11.14
+
+The following commands will run the lints:
+
+    pipenv install --dev
+    pipenv run flake8
+    terraform fmt --check
+
 ## Deploying
 
 Requirements:
