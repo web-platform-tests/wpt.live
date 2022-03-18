@@ -5,4 +5,4 @@ name = "pypi"
 
 [dev-packages]
 flake8 = "==4.0.1"
-pep8-naming = "==0.11.1"
+pep8-naming = "==0.12.1"
