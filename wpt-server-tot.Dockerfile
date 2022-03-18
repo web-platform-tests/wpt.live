@@ -12,8 +12,6 @@ RUN \
     git \
     gnupg \
     locales \
-    python \
-    python-pip \
     python3 \
     python3-pip \
     supervisor \
