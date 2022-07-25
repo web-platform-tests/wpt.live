@@ -141,27 +141,7 @@ resource "google_compute_instance_template" "wpt_server" {
   # startup-script and tf_depends_id comes from the module previously used for wpt-server. (see link at top)
   # TODO: evaluate if those two should be removed.
   metadata = {
-    # "${module.wpt-server-container.metadata_key}" = module.wpt-server-container.metadata_value
-    # The value for ${module.wpt-server-container.metadata_key} is temporary. During the upgrade, the metadata rendering changes.
-    # More info: https://github.com/terraform-google-modules/terraform-google-container-vm/blob/master/docs/upgrading_to_v2.0.md
-    # Clarification to the linked docs, metadata changes will destroy the old template and create a new one.
-    # In order to make this as smooth as possible, we will hardcode this.
-    # When ready, remove this temporary metadata and the one on cert-renewer. And uncomment the line above.
-    "${module.wpt-server-container.metadata_key}" = <<-EOT
-              ---
-              spec:
-                containers:
-                - env:
-                  - name: WPT_HOST
-                    value: wpt.live
-                  - name: WPT_ALT_HOST
-                    value: not-wpt.live
-                  - name: WPT_BUCKET
-                    value: wpt-tot-certificates
-                  image: gcr.io/wpt-live/wpt-live-wpt-server-tot@sha256:5d7a3d7a5ca0ba4ca7f6e56ad62aa6342c9ab92d41eea24cc6ce4a9b1e2a6afe
-                restartPolicy: Always
-                volumes: []
-              EOT
+    "${module.wpt-server-container.metadata_key}" = module.wpt-server-container.metadata_value
     "startup-script"                              = ""
     "tf_depends_id"                               = ""
     "google-logging-enabled"                      = "true"
@@ -219,27 +199,7 @@ resource "google_compute_instance_template" "cert_renewers" {
   # startup-script and tf_depends_id comes from the module previously used for cert renewer. (see link at top)
   # TODO: evaluate if those two should be removed.
   metadata = {
-    # "${module.cert-renewer-container.metadata_key}" = module.cert-renewer-container.metadata_value
-    # The value for ${module.cert-renewer-container.metadata_key} is temporary. During the upgrade, the metadata rendering changes.
-    # More info: https://github.com/terraform-google-modules/terraform-google-container-vm/blob/master/docs/upgrading_to_v2.0.md
-    # Clarification to the linked docs, metadata changes will destroy the old template and create a new one.
-    # In order to make this as smooth as possible, we will hardcode this.
-    # When ready, remove this temporary metadata and the one on wpt-server. And uncomment the line above.
-    "${module.cert-renewer-container.metadata_key}" = <<-EOT
-              ---
-              spec:
-                containers:
-                - env:
-                  - name: WPT_HOST
-                    value: wpt.live
-                  - name: WPT_ALT_HOST
-                    value: not-wpt.live
-                  - name: WPT_BUCKET
-                    value: wpt-tot-certificates
-                  image: gcr.io/wpt-live/wpt-live-cert-renewer@sha256:5b3c0a3a2b0d7e2a0e1c0303874d09bb3214aa93dec55ac245cf1c81e7d117d5
-                restartPolicy: Always
-                volumes: []
-              EOT
+    "${module.cert-renewer-container.metadata_key}" = module.cert-renewer-container.metadata_value
     "startup-script"                                = ""
     "tf_depends_id"                                 = ""
     "google-logging-enabled"                        = "true"

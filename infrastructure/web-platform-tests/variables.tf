@@ -103,9 +103,3 @@ variable "cert_renewer_ports" {
     }
   ]
 }
-
-variable "cos_image_name" {
-  description = "Name of specific COS image. Temporary variable. Will remove here and in main.tf once ready to upgrade. More info: https://github.com/terraform-google-modules/terraform-google-container-vm/blob/5e69eafaaaa8302c5732799e32d1da5c17b7b285/variables.tf#L46"
-  type        = string
-  default     = "cos-stable-85-13310-1209-17"
-}
