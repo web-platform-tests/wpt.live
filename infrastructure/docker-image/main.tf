@@ -1,11 +1,11 @@
 variable "registry" {
   description = "Host name of the Docker registry from which the image identifier should be retirieved"
-  type        = "string"
+  type        = string
 }
 
 variable "image" {
   description = "Name of the Docker image whose identifier should be retrieved"
-  type        = "string"
+  type        = string
 }
 
 output "identifier" {
@@ -17,8 +17,8 @@ data "external" "image" {
     "python3",
     "${path.module}/latest-image.py",
     "--registry",
-    "${var.registry}",
+    var.registry,
     "--image",
-    "${var.image}",
+    var.image,
   ]
 }
