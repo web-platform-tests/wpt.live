@@ -139,7 +139,7 @@ Requirements:
 
 - [Python 3](https://python.org)
 - [Pipenv](https://pipenv.pypa.io/)
-- [Terraform](https://www.terraform.io/) version 0.11.14
+- [Terraform](https://www.terraform.io/) version 1.2.5
 
 The following commands will run the lints:
 
@@ -153,7 +153,7 @@ Requirements:
 
 - [Docker](https://www.docker.com/)
 - [GNU Make](https://www.gnu.org/software/make/)
-- [Terraform](https://www.terraform.io/) version 0.11.14
+- [Terraform](https://www.terraform.io/) version 1.2.5
 - [Python 3](https://python.org)
 - access credentials to the Google Cloud Platform project, saved to a file named
   `google-cloud-platform-credentials.json` in the root pf this repository
