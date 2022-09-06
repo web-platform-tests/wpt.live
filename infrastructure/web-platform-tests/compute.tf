@@ -230,9 +230,7 @@ resource "google_compute_instance_group_manager" "cert_renewers" {
   zone = var.zone
 
   update_policy {
-    # The type is different from wpt servers's update policy.
-    # TODO: Evaluate why
-    type                  = "OPPORTUNISTIC"
+    type                  = local.update_policy.type
     minimal_action        = local.update_policy.minimal_action
     max_unavailable_fixed = local.update_policy.max_unavailable_fixed
   }
