@@ -15,8 +15,6 @@ module "wpt-server-container" {
   source  = "terraform-google-modules/container-vm/google"
   version = "3.0.0"
 
-  # Temporary variable
-  cos_image_name = var.cos_image_name
   container = {
     image = var.wpt_server_image
     env = [
@@ -42,8 +40,6 @@ module "cert-renewer-container" {
   source  = "terraform-google-modules/container-vm/google"
   version = "3.0.0"
 
-  # Temporary variable
-  cos_image_name = var.cos_image_name
   container = {
     image = var.cert_renewer_image
     env = [

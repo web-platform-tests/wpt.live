@@ -173,3 +173,6 @@ Cloud Platform with the state described by the configuration files in this
 repository:
 
     terraform apply
+
+Create a separate PR with the changes to the terraform.tfstate file after the
+deployment is successful.
