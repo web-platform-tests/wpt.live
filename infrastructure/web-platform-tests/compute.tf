@@ -154,96 +154,54 @@ resource "google_compute_instance_template" "wpt_server" {
 
 ########################################
 # Cert Renewers
-# These configurations come from: github.com/dcaba/terraform-google-managed-instance-group
-# More information about how it was used previously: https://github.com/web-platform-tests/wpt.live/blob/67dc5976ccce2e64483f2028a35659d4d6e58891/infrastructure/web-platform-tests/main.tf#L139-L178
 ########################################
 
-resource "google_compute_instance_template" "cert_renewers" {
-  name_prefix = "default-"
+resource "google_cloud_run_v2_job" "cert_renewers" {
+  name         = "${var.name}-cert-renewers"
+  location     = var.region
+  launch_stage = "BETA"
 
-  machine_type = "f1-micro"
-
-  region = var.region
-
-  tags = ["allow-ssh", "${var.name}-allow"]
-
-  labels = {
-    "${module.cert-renewer-container.vm_container_label_key}" = module.cert-renewer-container.vm_container_label
-  }
-
-  network_interface {
-    network    = var.network_name
-    subnetwork = var.subnetwork_name
-    network_ip = ""
-    access_config {
-      network_tier = "PREMIUM"
+  template {
+    template {
+      containers {
+        image = var.cert_renewer_image
+        env {
+          name  = "WPT_HOST"
+          value = var.host_name
+        }
+        env {
+          name  = "WPT_ALT_HOST"
+          value = var.alt_host_name
+        }
+        env {
+          name  = "WPT_BUCKET"
+          value = local.bucket_name
+        }
+      }
     }
-  }
-
-  can_ip_forward = false
-
-  disk {
-    auto_delete  = true
-    boot         = true
-    source_image = module.cert-renewer-container.source_image
-    type         = "PERSISTENT"
-    disk_type    = "pd-ssd"
-    mode         = "READ_WRITE"
-  }
-
-  service_account {
-    email  = "default"
-    scopes = ["cloud-platform"]
-  }
-
-  # startup-script and tf_depends_id comes from the module previously used for cert renewer. (see link at top)
-  # TODO: evaluate if those two should be removed.
-  metadata = {
-    "${module.cert-renewer-container.metadata_key}" = module.cert-renewer-container.metadata_value
-    "startup-script"                                = ""
-    "tf_depends_id"                                 = ""
-    "google-logging-enabled"                        = "true"
-  }
-
-  scheduling {
-    preemptible         = false
-    automatic_restart   = true
-    on_host_maintenance = "MIGRATE"
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
-resource "google_compute_instance_group_manager" "cert_renewers" {
-  name               = "${var.name}-cert-renewers"
-  description        = "compute VM Instance Group"
-  wait_for_instances = false
+data "google_project" "project" {
+}
 
-  base_instance_name = "${var.name}-cert-renewers"
+resource "google_cloud_scheduler_job" "cert_renewer_schedule" {
+  provider         = google
+  name             = "${var.name}-cert-renewer-schedule"
+  description      = "cert renewal schedule job"
+  schedule         = "0 0 * * *"
+  attempt_deadline = "320s"
+  region           = "us-central1"
 
-  version {
-    instance_template = google_compute_instance_template.cert_renewers.self_link
+  retry_config {
+    retry_count = 3
   }
 
-  zone = var.zone
-
-  update_policy {
-    type                  = local.update_policy.type
-    minimal_action        = local.update_policy.minimal_action
-    max_unavailable_fixed = local.update_policy.max_unavailable_fixed
-  }
-
-  target_pools = []
-
-  target_size = 1
-
-  dynamic "named_port" {
-    for_each = var.cert_renewer_ports
-    content {
-      name = named_port.value["name"]
-      port = named_port.value["port"]
+  http_target {
+    http_method = "POST"
+    uri         = "https://${google_cloud_run_v2_job.cert_renewers.location}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${data.google_project.project.number}/jobs/${google_cloud_run_v2_job.cert_renewers.name}:run"
+    oauth_token {
+      service_account_email = var.service_account_email
     }
   }
 }

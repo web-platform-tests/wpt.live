@@ -89,6 +89,10 @@ variable "wpt_server_ports" {
   ]
 }
 
+variable "service_account_email" {
+  type    = string
+  default = "393246102209-compute@developer.gserviceaccount.com"
+}
 
 variable "cert_renewer_ports" {
   type = list(object({

@@ -36,31 +36,6 @@ module "wpt-server-container" {
   restart_policy = "Always"
 }
 
-module "cert-renewer-container" {
-  source  = "terraform-google-modules/container-vm/google"
-  version = "3.0.0"
-
-  container = {
-    image = var.cert_renewer_image
-    env = [
-      {
-        name  = "WPT_HOST"
-        value = var.host_name
-      },
-      {
-        name  = "WPT_ALT_HOST"
-        value = var.alt_host_name
-      },
-      {
-        name  = "WPT_BUCKET"
-        value = local.bucket_name
-      },
-    ]
-  }
-
-  restart_policy = "Always"
-}
-
 resource "google_storage_bucket" "certificates" {
   name     = local.bucket_name
   location = "US"
