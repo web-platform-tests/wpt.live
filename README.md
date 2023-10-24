@@ -139,7 +139,7 @@ Requirements:
 
 - [Python 3](https://python.org)
 - [Pipenv](https://pipenv.pypa.io/)
-- [Terraform](https://www.terraform.io/) version 1.2.5
+- [Terraform](https://www.terraform.io/) version 1.6.2
 
 The following commands will run the lints:
 
