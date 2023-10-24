@@ -4,35 +4,30 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
 
-# Pin the versions for repeatable builds
+# Pin the versions of python and google cloud cli for repeatable builds
 # For ubuntu package versions, go to https://packages.ubuntu.com/
 #   Search for the package with the "jammy" distribution (aka 22.04) selected.
-# For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
 RUN \
   apt-get -qqy update && \
   apt-get -qqy install \
-    apt-transport-https=2.4.6 \
-    ca-certificates=20211016 \
-    curl=7.81.0-1ubuntu1.3 \
-    gettext-base=0.21-4ubuntu4 \
-    git=1:2.34.1-1ubuntu1.4 \
-    gnupg=2.2.27-3ubuntu2.1 \
-    locales=2.35-0ubuntu3.1 \
-    python3=3.10.4-0ubuntu2 \
-    python3-dev=3.10.4-0ubuntu2 \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gettext-base \
+    git \
+    gnupg \
+    locales \
+    python3=3.10.6-1~22.04 \
+    python3-dev=3.10.6-1~22.04 \
     python3-pip=22.0.2+dfsg-1 \
-    python3-venv=3.10.4-0ubuntu2 \
-    supervisor=4.2.1-1ubuntu1 \
-    tzdata=2022a-0ubuntu1 && \
-  # https://cloud.google.com/storage/docs/gsutil_install
-  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
-    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-    tee /usr/share/keyrings/cloud.google.gpg && \
-  apt-get -qqy update && \
-  apt-get -qqy install \
-    google-cloud-cli=396.0.0-0 && \
-  rm -rf /var/lib/apt/lists/* && apt-get clean
+    python3-venv=3.10.6-1~22.04 \
+    supervisor \
+    tzdata
+# For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
+# https://cloud.google.com/storage/docs/gsutil_install
+# Copy the "Docker Tip" instructions from gsutil_install link and then pin the version
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli=451.0.1-0 -y
+
 
 
 ENV TZ "UTC"

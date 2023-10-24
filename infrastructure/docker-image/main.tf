@@ -9,16 +9,9 @@ variable "image" {
 }
 
 output "identifier" {
-  value = "${var.registry}/${var.image}@${data.external.image.result.identifier}"
+  value = "${var.registry}/${var.image}@${data.docker_registry_image.image.sha256_digest}"
 }
 
-data "external" "image" {
-  program = [
-    "python3",
-    "${path.module}/latest-image.py",
-    "--registry",
-    var.registry,
-    "--image",
-    var.image,
-  ]
+data "docker_registry_image" "image" {
+  name = "${var.registry}/${var.image}:latest"
 }
