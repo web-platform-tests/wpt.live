@@ -55,7 +55,10 @@ RUN openssl req \
 
 COPY src/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+ENV GIT_WORK_TREE=/root/wpt
+ENV GIT_DIR=/root/wpt-git
 RUN mkdir /root/wpt && \
+  mkdir /root/wpt-git && \
   cd /root/wpt && \
   git init . && \
   git remote add origin https://github.com/web-platform-tests/wpt.git
