@@ -1,5 +1,5 @@
 HOST=gcr.io
-PROJECT_ID=wpt-live
+PROJECT_ID=wpt-live-app
 
 .PHONY: cert-renewer wpt-server-tot
 cert-renewer wpt-server-tot:
@@ -21,15 +21,9 @@ run-%: %
 		--env WPT_BUCKET \
 		wpt-live-$*
 
-google-cloud-platform-credentials.json:
-	@echo To publish images, the file $@ must be present in the root of >&2
-	@echo this repository. >&2
-	@exit 1
-
 .PHONY: login
-login: google-cloud-platform-credentials.json
-	cat $< | \
-		docker login -u _json_key --password-stdin $(HOST)
+login:
+	 yes | gcloud auth configure-docker
 
 publish-%: % login
 	docker tag wpt-live-$* $(HOST)/$(PROJECT_ID)/wpt-live-$*

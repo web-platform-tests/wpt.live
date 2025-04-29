@@ -1,13 +1,12 @@
 locals {
   region       = "us-central1"
   zone         = "us-central1-b"
-  project_name = "wpt-live"
+  project_name = "wpt-live-app"
 }
 
 provider "google" {
-  project     = local.project_name
-  region      = local.region
-  credentials = file("google-cloud-platform-credentials.json")
+  project = local.project_name
+  region  = local.region
 }
 
 resource "google_compute_network" "default" {
@@ -38,7 +37,7 @@ module "cert-renewer-image" {
 module "wpt-live" {
   source = "./infrastructure/web-platform-tests"
 
-  name               = "wpt-tot"
+  name               = "wpt-tot-app"
   network_name       = google_compute_network.default.name
   subnetwork_name    = google_compute_subnetwork.default.name
   host_zone_name     = "wpt-live"

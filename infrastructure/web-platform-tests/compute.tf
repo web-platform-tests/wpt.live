@@ -159,7 +159,6 @@ resource "google_compute_instance_template" "wpt_server" {
 resource "google_cloud_run_v2_job" "cert_renewers" {
   name         = "${var.name}-cert-renewers"
   location     = var.region
-  launch_stage = "BETA"
 
   template {
     template {

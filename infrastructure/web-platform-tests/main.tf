@@ -37,6 +37,7 @@ module "wpt-server-container" {
 }
 
 resource "google_storage_bucket" "certificates" {
-  name     = local.bucket_name
-  location = "US"
+  name                        = local.bucket_name
+  location                    = "US"
+  uniform_bucket_level_access = true
 }
