@@ -71,26 +71,10 @@ resource "google_compute_firewall" "wpt-server-mig-health-check" {
   # This range comes from this module that was used previously:
   # https://github.com/Ecosystem-Infra/terraform-google-multi-port-managed-instance-group/blob/master/main.tf#L347
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
-  target_tags   = ["${var.name}-allow"]
-}
-
-resource "google_compute_firewall" "wpt-servers-default-ssh" {
-  name    = "${var.name}-wpt-servers-vm-ssh"
-  network = var.network_name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["allow-ssh"]
 }
 
 resource "google_compute_instance_template" "wpt_server" {
   name_prefix = "default-"
-
-  tags = ["allow-ssh", "${var.name}-allow"]
 
   # As of 2020-06-17, we were running into OOM issues with the 1.7 GB
   # "g1-small" instance[1]. This was suspected to be due to 'git gc' needing

@@ -17,10 +17,10 @@ RUN \
     git \
     gnupg \
     locales \
-    python3=3.10.6-1~22.04 \
-    python3-dev=3.10.6-1~22.04 \
-    python3-pip=22.0.2+dfsg-1 \
-    python3-venv=3.10.6-1~22.04 \
+    python3=3.10.6-1~22.04.1 \
+    python3-dev=3.10.6-1~22.04.1 \
+    python3-pip=22.0.2+dfsg-1ubuntu0.5 \
+    python3-venv=3.10.6-1~22.04.1 \
     supervisor \
     tzdata
 # For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
