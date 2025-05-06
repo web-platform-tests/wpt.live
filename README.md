@@ -155,12 +155,14 @@ Requirements:
 - [GNU Make](https://www.gnu.org/software/make/)
 - [Terraform](https://www.terraform.io/) version 1.2.5
 - [Python 3](https://python.org)
-- access credentials to the Google Cloud Platform project, saved to a file named
-  `google-cloud-platform-credentials.json` in the root pf this repository
 
 The following commands will build Docker images for the respective sub-systems
 and upload them to Google Cloud Platform:
 
+    gcloud auth login
+    gcloud auth configure-docker gcr.io
+    make cert-renewer
+    make wpt-server-tot
     make publish-cert-renewer
     make publish-wpt-server-tot
 

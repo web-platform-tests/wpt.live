@@ -17,9 +17,9 @@ RUN apt-get -qqy update && \
     ca-certificates \
     curl \
     gnupg \
-    python3=3.10.6-1~22.04 \
-    python3-dev=3.10.6-1~22.04 \
-    python3-pip=22.0.2+dfsg-1
+    python3=3.10.6-1~22.04.1 \
+    python3-dev=3.10.6-1~22.04.1 \
+    python3-pip=22.0.2+dfsg-1ubuntu0.5
 # For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
 # https://cloud.google.com/storage/docs/gsutil_install
 # Copy the "Docker Tip" instructions from gsutil_install link and then pin the version

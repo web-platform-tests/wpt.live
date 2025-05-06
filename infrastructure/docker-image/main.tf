@@ -9,9 +9,9 @@ variable "image" {
 }
 
 output "identifier" {
-  value = "${var.registry}/${var.image}@${data.docker_registry_image.image.sha256_digest}"
+  value = "${data.docker_image.image.repo_digest}"
 }
 
-data "docker_registry_image" "image" {
+data "docker_image" "image" {
   name = "${var.registry}/${var.image}:latest"
 }
