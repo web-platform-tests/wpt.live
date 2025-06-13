@@ -8,26 +8,25 @@ ENV WPT_HOST=wpt.live \
   WPT_ALT_HOST=not-wpt.live \
   WPT_BUCKET=wpt-live
 
-# Pin the versions of python and google cloud cli for repeatable builds
-# For ubuntu package versions, go to https://packages.ubuntu.com/
-#   Search for the package with the "jammy" distribution (aka 22.04) selected.
+# Search for the packages with the "jammy" distribution (aka 22.04) selected on https://packages.ubuntu.com/.
 RUN apt-get -qqy update && \
   apt-get -qqy install \
     apt-transport-https \
     ca-certificates \
     curl \
     gnupg \
-    python3=3.10.6-1~22.04.1 \
-    python3-dev=3.10.6-1~22.04.1 \
-    python3-pip=22.0.2+dfsg-1ubuntu0.5
+    python3.10 \
+    python3.10-dev \
+    python3-pip
 # For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
 # https://cloud.google.com/storage/docs/gsutil_install
 # Copy the "Docker Tip" instructions from gsutil_install link and then pin the version
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli=451.0.1-0 -y
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli=526.0.1-0 -y
 
 # Instructions for certbot installation
 # https://certbot.eff.org/instructions?ws=other&os=pip
-RUN pip install acme==1.29.0 certbot==1.29.0 certbot-dns-google==1.29.0
+COPY cert-renewer-requirements.txt requirements.txt
+RUN pip install -r requirements.txt
 
 COPY src/cert-store.sh /usr/local/bin/
 
