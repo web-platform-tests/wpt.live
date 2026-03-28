@@ -20,7 +20,16 @@ RUN \
     python3.10-venv \
     python3-pip \
     supervisor \
-    tzdata
+    tzdata \
+    libcap2-bin && \
+  sed -i 's/chmod=0700/chmod=0770\nchown=root:wpt-sync/' /etc/supervisor/supervisord.conf && \
+  setcap 'cap_net_bind_service=+ep' /usr/bin/python3.10
+
+RUN useradd -ms /bin/bash -u 1000 wpt-server && \
+    useradd -ms /bin/bash -u 1001 wpt-sync && \
+    usermod -aG wpt-sync wpt-server
+
+
 # For Google Cloud, look under https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-amd64/Packages
 # https://cloud.google.com/storage/docs/gsutil_install
 # Copy the "Docker Tip" instructions from gsutil_install link and then pin the version
@@ -48,23 +57,27 @@ RUN openssl req \
   -subj '/CN=example.com' \
   -days 1 \
   -newkey rsa:4096 -sha256 \
-  -keyout /root/privkey.pem \
-  -out /root/fullchain.pem
+  -keyout /home/wpt-sync/privkey.pem \
+  -out /home/wpt-sync/fullchain.pem
 
 COPY src/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-ENV GIT_WORK_TREE=/root/wpt
-ENV GIT_DIR=/root/wpt-git
-RUN mkdir /root/wpt && \
-  mkdir /root/wpt-git && \
-  cd /root/wpt && \
+ENV GIT_WORK_TREE=/home/wpt-sync/wpt
+ENV GIT_DIR=/home/wpt-sync/wpt-git
+RUN mkdir -p /home/wpt-sync/wpt && \
+  mkdir -p /home/wpt-sync/wpt-git && \
+  cd /home/wpt-sync/wpt && \
   git init . && \
-  git remote add origin https://github.com/web-platform-tests/wpt.git
+  git remote add origin https://github.com/web-platform-tests/wpt.git && \
+  chown -R wpt-sync:wpt-sync /home/wpt-sync && \
+  chmod a+rx /home/wpt-sync /home/wpt-sync/wpt /home/wpt-sync/wpt-git && \
+  chmod g+w /home/wpt-sync/wpt
 
 COPY src/fetch-certs.py src/fetch-wpt.py /usr/local/bin/
-COPY src/wpt-config.json.template /root/wpt-config.json.template
+COPY src/wpt-config.json.template /home/wpt-sync/wpt-config.json.template
+RUN chown wpt-sync:wpt-sync /home/wpt-sync/wpt-config.json.template
 
-WORKDIR /root/wpt
+WORKDIR /home/wpt-sync/wpt
 ENV WPT_HOST=wpt.live \
   WPT_ALT_HOST=not-wpt.live \
   WPT_BUCKET=wpt-live

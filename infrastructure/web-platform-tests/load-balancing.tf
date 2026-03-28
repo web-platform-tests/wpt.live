@@ -29,6 +29,7 @@ resource "google_compute_target_pool" "default" {
   ]
 }
 
+
 resource "google_compute_http_health_check" "default" {
   name = "${local.lb_name}-health-check"
 

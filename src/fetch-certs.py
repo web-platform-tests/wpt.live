@@ -67,6 +67,7 @@ def main(bucket_name, outdir, period):
             if new_hashes != old_hashes:
                 logger.debug('New files received. Copying into place.')
 
+                import os
                 shutil.move(
                     '{}/fullchain.pem'.format(tmp_dir),
                     '{}/fullchain.pem'.format(outdir)
@@ -75,6 +76,8 @@ def main(bucket_name, outdir, period):
                     '{}/privkey.pem'.format(tmp_dir),
                     '{}/privkey.pem'.format(outdir)
                 )
+                os.chmod('{}/fullchain.pem'.format(outdir), 0o644)
+                os.chmod('{}/privkey.pem'.format(outdir), 0o644)
 
                 break
 

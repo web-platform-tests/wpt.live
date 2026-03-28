@@ -6,7 +6,8 @@
     "wss": [8002],
     "http2": [8003]
   },
-  "bind_address": false,
+  "bind_address": "0.0.0.0",
+  "server_host": "0.0.0.0",
   "browser_host": "${WPT_HOST}",
   "alternate_hosts": {
     "alt": "${WPT_ALT_HOST}"
@@ -14,8 +15,8 @@
   "check_subdomains": false,
   "ssl": {
     "pregenerated": {
-      "host_key_path": "/root/privkey.pem",
-      "host_cert_path": "/root/fullchain.pem"
+      "host_key_path": "/home/wpt-sync/privkey.pem",
+      "host_cert_path": "/home/wpt-sync/fullchain.pem"
     }
   }
 }
