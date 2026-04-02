@@ -20,10 +20,8 @@ RUN \
     python3.10-venv \
     python3-pip \
     supervisor \
-    tzdata \
-    libcap2-bin && \
-  sed -i 's/chmod=0700/chmod=0770\nchown=root:wpt-sync/' /etc/supervisor/supervisord.conf && \
-  setcap 'cap_net_bind_service=+ep' /usr/bin/python3.10
+    tzdata && \
+  sed -i 's/chmod=0700/chmod=0770\nchown=root:wpt-sync/' /etc/supervisor/supervisord.conf
 
 RUN useradd -ms /bin/bash -u 1000 wpt-server && \
     useradd -ms /bin/bash -u 1001 wpt-sync && \

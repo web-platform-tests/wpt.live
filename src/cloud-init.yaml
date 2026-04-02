@@ -1,11 +1,6 @@
 #cloud-config
 
 write_files:
-  - path: /etc/sysctl.d/99-unprivileged-ports.conf
-    permissions: 0644
-    owner: root
-    content: |
-      net.ipv4.ip_unprivileged_port_start=80
   - path: /etc/systemd/system/wpt-server.service
     permissions: 0644
     owner: root

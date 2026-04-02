@@ -77,7 +77,7 @@ def main(bucket_name, outdir, period):
                     '{}/privkey.pem'.format(outdir)
                 )
                 os.chmod('{}/fullchain.pem'.format(outdir), 0o644)
-                os.chmod('{}/privkey.pem'.format(outdir), 0o644)
+                os.chmod('{}/privkey.pem'.format(outdir), 0o640)
 
                 break
 
