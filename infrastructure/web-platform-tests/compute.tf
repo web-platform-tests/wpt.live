@@ -22,10 +22,10 @@ resource "google_project_iam_member" "sa_logging" {
   member  = "serviceAccount:${google_service_account.wpt_live_sa.email}"
 }
 
-resource "google_project_iam_member" "sa_storage" {
-  project = data.google_project.project.project_id
-  role    = "roles/storage.objectViewer"
-  member  = "serviceAccount:${google_service_account.wpt_live_sa.email}"
+resource "google_storage_bucket_iam_member" "sa_storage" {
+  bucket = google_storage_bucket.certificates.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.wpt_live_sa.email}"
 }
 
 resource "google_project_iam_member" "sa_artifactregistry" {
