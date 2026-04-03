@@ -10,37 +10,46 @@
 # More information about how it was used previously: https://github.com/web-platform-tests/wpt.live/blob/67dc5976ccce2e64483f2028a35659d4d6e58891/infrastructure/web-platform-tests/main.tf#L69-L137
 ########################################
 
-resource "google_compute_health_check" "wpt_health_check" {
-  name = "${var.name}-wpt-servers"
 
-  check_interval_sec  = 10
-  timeout_sec         = 10
-  healthy_threshold   = 3
-  unhealthy_threshold = 6
-
-  https_health_check {
-    port = "443"
-    # A query parameter is used to distinguish the health check in the server's
-    # request logs.
-    request_path = "/?gcp-health-check"
-  }
+resource "google_service_account" "wpt_live_sa" {
+  account_id   = "${var.name}-sa"
+  display_name = "WPT Live Node Service Account"
 }
 
-resource "google_compute_instance_group_manager" "wpt_servers" {
-  name               = "${var.name}-wpt-servers"
-  zone               = var.zone
-  description        = "compute VM Instance Group"
-  wait_for_instances = false
-  base_instance_name = "${var.name}-wpt-servers"
+resource "google_project_iam_member" "sa_logging" {
+  project = data.google_project.project.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.wpt_live_sa.email}"
+}
+
+resource "google_storage_bucket_iam_member" "sa_storage" {
+  bucket = google_storage_bucket.certificates.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.wpt_live_sa.email}"
+}
+
+resource "google_project_iam_member" "sa_artifactregistry" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.wpt_live_sa.email}"
+}
+
+resource "google_compute_region_instance_group_manager" "wpt_server_cloud_init" {
+  name                      = "${var.name}-instance-group-cloud-init"
+  base_instance_name        = "${var.name}-cloud-init"
+  region                    = var.region
+  distribution_policy_zones = [var.zone]
+
   version {
-    name              = "${var.name}-wpt-servers-default"
-    instance_template = google_compute_instance_template.wpt_server.self_link
+    instance_template = google_compute_instance_template.wpt_server_cloud_init.id
   }
+
   update_policy {
-    type                  = local.update_policy.type
-    minimal_action        = local.update_policy.minimal_action
+    minimal_action       = local.update_policy.minimal_action
+    type                 = local.update_policy.type
     max_unavailable_fixed = local.update_policy.max_unavailable_fixed
   }
+
   target_pools = [google_compute_target_pool.default.self_link]
   target_size  = 2
 
@@ -54,7 +63,57 @@ resource "google_compute_instance_group_manager" "wpt_servers" {
 
   auto_healing_policies {
     health_check      = google_compute_health_check.wpt_health_check.self_link
-    initial_delay_sec = 30
+    initial_delay_sec = 180
+  }
+}
+
+resource "google_compute_instance_template" "wpt_server_cloud_init" {
+  name_prefix = "cloud-init-"
+
+  machine_type = "e2-medium"
+
+  network_interface {
+    network    = var.network_name
+    subnetwork = var.subnetwork_name
+    access_config {
+      network_tier = "PREMIUM"
+    }
+  }
+
+  can_ip_forward = false
+
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = data.google_compute_image.cos.self_link
+    type         = "PERSISTENT"
+    disk_type    = "pd-ssd"
+    disk_size_gb = var.wpt_server_disk_size
+    mode         = "READ_WRITE"
+  }
+
+  service_account {
+    email  = google_service_account.wpt_live_sa.email
+    scopes = ["cloud-platform"]
+  }
+
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
+  }
+
+  metadata = {
+    "user-data" = templatefile("${path.module}/../../src/cloud-init.yaml", {
+      WPT_HOST         = var.host_name
+      WPT_ALT_HOST     = var.alt_host_name
+      WPT_BUCKET       = local.bucket_name
+      WPT_SERVER_IMAGE = var.wpt_server_image
+    })
+    "google-logging-enabled" = "true"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -73,68 +132,24 @@ resource "google_compute_firewall" "wpt-server-mig-health-check" {
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
 }
 
-resource "google_compute_instance_template" "wpt_server" {
-  name_prefix = "default-"
 
-  # As of 2020-06-17, we were running into OOM issues with the 1.7 GB
-  # "g1-small" instance[1]. This was suspected to be due to 'git gc' needing
-  # more memory, so we upgraded to "e2-medium" (4 GB of RAM).
-  #
-  # [1] https://github.com/web-platform-tests/wpt.live/issues/30
-  machine_type = "e2-medium"
 
-  # The "google-logging-enabled" metadata is undocumented, but it is apparently
-  # necessary to enable the capture of logs from the Docker image.
-  #
-  # https://github.com/GoogleCloudPlatform/konlet/issues/56
-  labels = {
-    "${module.wpt-server-container.vm_container_label_key}" = module.wpt-server-container.vm_container_label
-  }
+resource "google_compute_health_check" "wpt_health_check" {
+  name = "${var.name}-wpt-servers"
 
-  network_interface {
-    network    = var.network_name
-    subnetwork = var.subnetwork_name
-    access_config {
-      network_tier = "PREMIUM"
-    }
-  }
+  check_interval_sec  = 10
+  timeout_sec         = 10
+  healthy_threshold   = 3
+  unhealthy_threshold = 6
 
-  can_ip_forward = false
-
-  // Create a new boot disk from an image
-  disk {
-    auto_delete  = true
-    boot         = true
-    source_image = module.wpt-server-container.source_image
-    type         = "PERSISTENT"
-    disk_type    = "pd-ssd"
-    disk_size_gb = var.wpt_server_disk_size
-    mode         = "READ_WRITE"
-  }
-
-  service_account {
-    email  = "default"
-    scopes = ["storage-ro", "logging-write"]
-  }
-
-  scheduling {
-    automatic_restart   = true
-    on_host_maintenance = "MIGRATE"
-  }
-
-  # startup-script and tf_depends_id comes from the module previously used for wpt-server. (see link at top)
-  # TODO: evaluate if those two should be removed.
-  metadata = {
-    "${module.wpt-server-container.metadata_key}" = module.wpt-server-container.metadata_value
-    "startup-script"                              = ""
-    "tf_depends_id"                               = ""
-    "google-logging-enabled"                      = "true"
-  }
-
-  lifecycle {
-    create_before_destroy = true
+  https_health_check {
+    port = "443"
+    # A query parameter is used to distinguish the health check in the server's
+    # request logs.
+    request_path = "/?gcp-health-check"
   }
 }
+
 
 ########################################
 # Cert Renewers

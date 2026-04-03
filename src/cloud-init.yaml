@@ -1,0 +1,40 @@
+#cloud-config
+
+write_files:
+  - path: /etc/systemd/system/wpt-server.service
+    permissions: 0644
+    owner: root
+    content: |
+      [Unit]
+      Description=WPT Server Container
+      After=docker.service
+      Requires=docker.service
+      
+      [Service]
+      Environment="HOME=/home/chronos"
+      ExecStartPre=/sbin/iptables -I OUTPUT -d 169.254.169.254 -p tcp -m owner --uid-owner 1000 -j DROP
+      ExecStartPre=/usr/bin/docker-credential-gcr configure-docker --registries=gcr.io,us-docker.pkg.dev
+      ExecStartPre=-/usr/bin/docker rm -f wpt-server
+      ExecStart=/usr/bin/docker run \
+        --name=wpt-server \
+        -p 80:8000 \
+        -p 443:8443 \
+        -p 8000:8000 \
+        -p 8443:8443 \
+        -p 8001:8001 \
+        -p 8002:8002 \
+        -p 8003:8003 \
+        --log-driver=gcplogs \
+        --env="WPT_HOST=${WPT_HOST}" \
+        --env="WPT_ALT_HOST=${WPT_ALT_HOST}" \
+        --env="WPT_BUCKET=${WPT_BUCKET}" \
+        "${WPT_SERVER_IMAGE}"
+      ExecStop=/usr/bin/docker stop wpt-server
+      Restart=always
+      RestartSec=5s
+
+runcmd:
+  - sysctl --system
+  - systemctl daemon-reload
+  - systemctl enable wpt-server.service
+  - systemctl start wpt-server.service
