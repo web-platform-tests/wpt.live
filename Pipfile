@@ -4,5 +4,5 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-flake8 = "==5.0.4"
+flake8 = "==6.0.0"
 pep8-naming = "==0.13.2"
